@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='3' y='1' width='10' height='14' fill='%230F1A30' stroke='%233B82F6' stroke-width='1'/%3E%3Cpolygon points='10,1 13,1 13,4' fill='%23131D33' stroke='%233B82F6' stroke-width='0.5'/%3E%3Cline x1='10' y1='1' x2='10' y2='4' stroke='%2360A5FA' stroke-width='0.5'/%3E%3Cline x1='10' y1='4' x2='13' y2='4' stroke='%2360A5FA' stroke-width='0.5'/%3E%3Crect x='6' y='6' width='4' height='2' fill='%23E6ECF5'/%3E%3Crect x='7' y='5' width='2' height='4' fill='%23E6ECF5'/%3E%3Crect x='4' y='12' width='8' height='1' fill='%232DD4BF'/%3E%3Cpolygon points='12,12 14,10 14,13 12,13' fill='%232DD4BF'/%3E%3C/svg%3E" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net; worker-src 'self' blob:; connect-src 'self' blob: https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; object-src 'none'; base-uri 'self';" />
-  <title>swissfile.dev — Local File Workbench</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://pagead2.googlesyndication.com https://adservice.google.com https://www.googletagservices.com; worker-src 'self' blob:; connect-src 'self' blob: https://unpkg.com https://cdn.jsdelivr.net https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net; media-src 'self' blob:; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com; object-src 'none'; base-uri 'self';" />
+  <title>swissfile.dev | Local File Workbench</title>
   <style>
     :root {
       --bg-base: #070B14;
@@ -578,19 +579,26 @@
     <div class="container-wb wb-header-bar">
       <!-- Pixel-Art Emblem & Brand -->
       <div class="flex-row gap-3">
-        <svg width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" class="shrink-0">
-          <rect x="0" y="0" width="16" height="16" fill="#0B1426" />
-          <rect x="1" y="1" width="14" height="14" fill="none" stroke="#3B82F6" stroke-width="1" />
-          <rect x="6" y="3" width="4" height="10" fill="#E6ECF5" />
-          <rect x="3" y="6" width="10" height="4" fill="#E6ECF5" />
-          <rect x="7" y="7" width="2" height="2" fill="#2DD4BF" />
+        <svg id="siteLogo" width="32" height="32" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" class="shrink-0">
+          <!-- Document body -->
+          <rect x="3" y="1" width="10" height="14" fill="#0F1A30" stroke="#3B82F6" stroke-width="1" />
+          <!-- Folded corner -->
+          <polygon points="10,1 13,1 13,4" fill="#131D33" stroke="#3B82F6" stroke-width="0.5" />
+          <line x1="10" y1="1" x2="10" y2="4" stroke="#60A5FA" stroke-width="0.5" />
+          <line x1="10" y1="4" x2="13" y2="4" stroke="#60A5FA" stroke-width="0.5" />
+          <!-- Swiss cross -->
+          <rect x="6" y="6" width="4" height="2" fill="#E6ECF5" />
+          <rect x="7" y="5" width="2" height="4" fill="#E6ECF5" />
+          <!-- Blade accent -->
+          <rect x="4" y="12" width="8" height="1" fill="#2DD4BF" />
+          <polygon points="12,12 14,10 14,13 12,13" fill="#2DD4BF" />
         </svg>
         <div>
           <div class="flex-row gap-2">
             <span class="font-mono-tech" style="font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em;">swissfile.dev</span>
             <span class="badge font-mono-tech">v1.6</span>
           </div>
-          <p class="sub-muted">Client-side conversion, media repair, metadata forensics &amp; file encryption</p>
+          <p class="sub-muted">Local conversion, repair, forensics, encryption &amp; archiving</p>
         </div>
       </div>
 
@@ -598,7 +606,7 @@
       <div class="flex-row flex-wrap gap-2">
         <div class="badge badge-teal font-mono-tech" style="padding: 0.32rem 0.6rem;">
           <span style="display:inline-block;width:7px;height:7px;background:#2DD4BF;border-radius:1px;"></span>
-          <span>100% LOCAL — ZERO SERVER UPLOADS</span>
+          <span>100% LOCAL · ZERO SERVER UPLOADS</span>
         </div>
 
         <label class="flex-row gap-1-5 font-mono-tech" style="font-size:0.75rem;color:var(--text-muted);">
@@ -636,12 +644,20 @@
         <button data-tab="opsec" type="button" class="wb-tab px-btn font-mono-tech" style="padding: 0.5rem 1rem; font-size: 0.8125rem;">
           OpSec
         </button>
+        <button data-tab="archiver" type="button" class="wb-tab px-btn font-mono-tech" style="padding: 0.5rem 1rem; font-size: 0.8125rem;">
+          Archiver
+        </button>
       </div>
     </nav>
   </header>
 
   <!-- Main Workbench Workspace -->
   <main class="container-wb wb-main">
+
+    <!-- Google AdSense Slot: Top Banner -->
+    <div id="adsense-top" style="min-height:90px;background:transparent;border:2px solid var(--border-px);border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.6875rem;font-family:ui-monospace,monospace;">
+      <!-- Google AdSense Slot: replace this div's contents with your ad unit code -->
+    </div>
 
     <!-- =================================================================== -->
     <!-- TAB 1: CONVERT (PHOTO | VIDEO | AUDIO)                              -->
@@ -651,7 +667,7 @@
         <div class="sec-head">
           <div>
             <h1 class="title-lg">Convert</h1>
-            <p class="sub-muted">Browser-local Photo, Video &amp; Audio conversion — transparent codec labels, downscaling &amp; batch ZIP</p>
+            <p class="sub-muted">Local photo, video &amp; audio conversion with codec labels, downscaling &amp; batch ZIP</p>
           </div>
           <!-- Sub-mode Switcher -->
           <div class="flex-row gap-1-5">
@@ -669,7 +685,7 @@
               Drop photos here, paste (<span class="font-mono-tech" style="color:var(--accent-hi);font-size:0.75rem;">Ctrl/Cmd+V</span>), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
             </p>
             <p id="photoQueueCount" class="sub-muted font-mono-tech">
-              Supported: PNG, JPEG, WebP, BMP, static GIF, browser-supported AVIF · 0 queued
+              Supported: PNG, JPEG, WebP, BMP, static GIF, browser supported AVIF · 0 queued
             </p>
           </div>
 
@@ -677,9 +693,9 @@
             <div>
               <label for="photoFormat" class="lbl-micro font-mono-tech">Output Format</label>
               <select id="photoFormat" class="px-input">
-                <option value="image/png">PNG (Lossless Re-encode)</option>
-                <option value="image/jpeg" selected>JPEG (Lossy · White BG Fill)</option>
-                <option value="image/webp">WebP (Lossy Q10–100)</option>
+                <option value="image/png">PNG (Lossless)</option>
+                <option value="image/jpeg" selected>JPEG (Lossy, White BG Fill)</option>
+                <option value="image/webp">WebP (Lossy Q10 to 100)</option>
               </select>
             </div>
 
@@ -706,13 +722,13 @@
             </div>
 
             <div>
-              <label for="photoMaxKb" class="lbl-micro font-mono-tech">Target Max Size (KB · JPEG/WebP)</label>
+              <label for="photoMaxKb" class="lbl-micro font-mono-tech">Target Max Size (KB, JPEG/WebP)</label>
               <input id="photoMaxKb" type="number" min="10" placeholder="Optional (e.g. 150)" class="px-input font-mono-tech" />
             </div>
           </div>
 
           <p class="sub-muted font-mono-tech">
-            Note: Canvas redraws pixel buffers (strips metadata; JPEG/WebP Q100 is maximum encoder quality, still lossy). Animated GIFs flatten to frame 1 in Canvas—use Convert → Video for animated GIF/WebM output. Max dimension guard: 16,384 px.
+            Canvas redraws pixel buffers and strips metadata. JPEG/WebP Q100 is max encoder quality but still lossy. Animated GIFs flatten to frame 1; use Video mode for animated output. Max dimension: 16,384 px.
           </p>
 
           <div class="flex-row flex-wrap justify-between gap-3">
@@ -756,7 +772,7 @@
                 <option value="webm">WebM (VP9 + Opus)</option>
                 <option value="mov">MOV (H.264 + AAC)</option>
                 <option value="mkv">MKV (H.264 + AAC)</option>
-                <option value="avi">AVI (MPEG-4 + MP3)</option>
+                <option value="avi">AVI (MPEG4 + MP3)</option>
                 <option value="gif">GIF (Animated · 15 fps)</option>
               </select>
             </div>
@@ -765,17 +781,17 @@
               <label for="videoRes" class="lbl-micro font-mono-tech">Resolution Downscaler</label>
               <select id="videoRes" class="px-input">
                 <option value="original" selected>Original</option>
-                <option value="1080">1080p (scale=-2:1080)</option>
-                <option value="720">720p (scale=-2:720)</option>
-                <option value="480">480p (scale=-2:480)</option>
-                <option value="360">360p (scale=-2:360)</option>
+                <option value="1080">1080p (FHD)</option>
+                <option value="720">720p (HD)</option>
+                <option value="480">480p (SD)</option>
+                <option value="360">360p (Low)</option>
               </select>
             </div>
 
             <div>
               <label for="videoQuality" class="lbl-micro font-mono-tech">Encoding / Remux Mode</label>
               <select id="videoQuality" class="px-input">
-                <option value="copy">Lossless Stream Remux (-c copy · No Re-encode)</option>
+                <option value="copy">Lossless Stream Remux (copy mode, no re encode)</option>
                 <option value="master">CRF 14 Visually Transparent (Lossy H.264/VP9)</option>
                 <option value="high" selected>CRF 20 High Quality (Lossy)</option>
                 <option value="balanced">CRF 26 Balanced (Lossy)</option>
@@ -786,7 +802,7 @@
             <div style="padding-bottom: 0.35rem;">
               <label class="flex-row gap-2" style="font-size:0.75rem; cursor:pointer;">
                 <input id="videoMute" type="checkbox" style="width:15px;height:15px;accent-color:var(--accent);" />
-                <span>Strip audio (<span class="font-mono-tech" style="color:var(--text-muted);">-an</span>)</span>
+                <span>Strip audio (<span class="font-mono-tech" style="color:var(--text-muted);">mute</span>)</span>
               </label>
             </div>
           </div>
@@ -825,7 +841,7 @@
               Drop audio files or videos (to extract audio tracks), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
             </p>
             <p id="audioQueueCount" class="sub-muted font-mono-tech">
-              Lossless Codecs (FLAC, ALAC, PCM WAV/AIFF) &amp; Max-Bitrate Lossy (MP3 320k, AAC, Opus, OGG) · 0 queued
+              Lossless Codecs (FLAC, ALAC, PCM WAV/AIFF) &amp; Max Bitrate Lossy (MP3 320k, AAC, Opus, OGG) · 0 queued
             </p>
           </div>
 
@@ -867,8 +883,8 @@
               <label for="audioBitDepth" class="lbl-micro font-mono-tech">Bit Depth (PCM / FLAC)</label>
               <select id="audioBitDepth" class="px-input">
                 <option value="original" selected>Preserve Source Depth</option>
-                <option value="24">24-bit</option>
-                <option value="16">16-bit</option>
+                <option value="24">24 bit</option>
+                <option value="16">16 bit</option>
               </select>
             </div>
           </div>
@@ -876,13 +892,13 @@
           <div class="flex-row flex-wrap justify-between gap-3">
             <label class="flex-row gap-2" style="font-size:0.75rem; cursor:pointer;">
               <input id="audioPreserveMeta" type="checkbox" checked style="width:15px;height:15px;accent-color:var(--accent);" />
-              <span>Preserve Tags &amp; Cover Art (<span class="font-mono-tech" style="color:var(--text-muted);">-map_metadata 0</span>)</span>
+              <span>Preserve Tags &amp; Cover Art (<span class="font-mono-tech" style="color:var(--text-muted);">map metadata</span>)</span>
             </label>
             <span id="audioCodecNote" class="font-mono-tech" style="font-size:0.7rem;color:var(--teal);"></span>
           </div>
 
           <p class="sub-muted font-mono-tech">
-            Note: Converting from a lossy source (e.g. MP3/AAC) to FLAC/WAV preserves the decoded waveform without further loss, but cannot restore frequencies discarded by the original lossy encoder.
+            Converting from a lossy source (MP3/AAC) to FLAC/WAV preserves the decoded waveform but cannot restore frequencies removed by the original encoder.
           </p>
 
           <div class="px-card-sm stack-1">
@@ -921,7 +937,7 @@
         <div class="sec-head">
           <div>
             <h1 class="title-lg">Repair</h1>
-            <p class="sub-muted">Strict format validation, multi-layer corruption diagnostics, salvage &amp; post-repair decoder verification</p>
+            <p class="sub-muted">Format validation, corruption diagnostics, salvage &amp; decoder verification</p>
           </div>
           <div class="flex-row gap-1-5">
             <button id="repairScopeCorruptBtn" type="button" class="px-btn font-mono-tech">Repair Issues Only</button>
@@ -943,10 +959,10 @@
         <div class="grid-3">
           <div class="px-card stack-2">
             <p class="lbl-micro font-mono-tech" style="color:var(--accent-soft);text-transform:uppercase;margin:0;">1. Video Stream Salvage</p>
-            <p class="sub-muted">Stage 1: Lossless container remux (<span class="font-mono-tech" style="color:var(--text-main);">-err_detect ignore_err -c copy -movflags +faststart</span>).</p>
+            <p class="sub-muted">Stage 1: Lossless container remux (<span class="font-mono-tech" style="color:var(--text-main);">lossless remux mode</span>).</p>
             <label class="flex-row gap-2" style="font-size:0.75rem;cursor:pointer;padding-top:0.25rem;">
               <input id="repairVideoFallback" type="checkbox" checked style="width:15px;height:15px;accent-color:var(--accent);" />
-              <span>Stage 2 H.264 + AAC Re-encode Fallback</span>
+              <span>Stage 2 H.264 + AAC Re encode Fallback</span>
             </label>
           </div>
 
@@ -1003,7 +1019,7 @@
         <div class="sec-head">
           <div>
             <h1 class="title-lg">Metadata &amp; Container Inspector</h1>
-            <p class="sub-muted">Extracts Image EXIF/GPS/XMP/IPTC/ICC (<span class="font-mono-tech">exifr</span>) + Binary MP4/MOV/MKV/RIFF/ID3 Container Atoms &amp; FFmpeg Stream Info</p>
+            <p class="sub-muted">EXIF, GPS, XMP, IPTC, ICC &amp; binary container atoms with FFmpeg stream info</p>
           </div>
           <span class="badge badge-teal font-mono-tech">exifr + binary atom parser</span>
         </div>
@@ -1011,7 +1027,7 @@
         <div id="exifDropzone" class="px-dropzone" tabindex="0" role="button">
           <input id="exifInput" type="file" multiple accept="image/*,video/*,audio/*,.jpg,.jpeg,.png,.webp,.heic,.heif,.tif,.tiff,.mp4,.mov,.mkv,.webm,.avi,.flac,.mp3,.wav,.m4a,.ogg" class="hidden" />
           <p style="margin:0; font-weight: 500;">
-            Drop 1–100+ media files to inspect metadata &amp; container headers, paste (<span class="font-mono-tech" style="color:var(--accent-hi);font-size:0.75rem;">Ctrl/Cmd+V</span>), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            Drop media files to inspect metadata &amp; container headers, paste (<span class="font-mono-tech" style="color:var(--accent-hi);font-size:0.75rem;">Ctrl/Cmd+V</span>), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
           </p>
         </div>
 
@@ -1032,7 +1048,7 @@
                 <th>Preview &amp; Filename</th>
                 <th>Dimensions / Stream</th>
                 <th>Device / Codec</th>
-                <th>GPS Coordinates (External Map Opt-In)</th>
+                <th>GPS Coordinates (External Map Opt In)</th>
                 <th>Extracted Fields</th>
               </tr>
             </thead>
@@ -1059,7 +1075,7 @@
           </div>
 
           <p class="sub-muted font-mono-tech">
-            Scope note: Extracts all standard metadata blocks supported by exifr and binary container headers. Proprietary encrypted MakerNotes or undocumented custom chunks may not decode.
+            Extracts standard metadata blocks via exifr and binary container headers. Proprietary MakerNotes or undocumented chunks may not decode.
           </p>
 
           <!-- Group Filter Pills -->
@@ -1087,14 +1103,14 @@
           <div class="sec-head">
             <div>
               <h2 class="title-lg" style="font-size:0.95rem;">Magic Bytes &amp; Spoof Detector</h2>
-              <p class="sub-muted">Inspect first 16 + last 16 bytes in hex &amp; ASCII to uncover true binary format and spoofed extensions</p>
+              <p class="sub-muted">First &amp; last 16 bytes in hex to verify binary format and detect spoofed extensions</p>
             </div>
           </div>
 
           <div id="forensicsDropzone" class="px-dropzone" tabindex="0" role="button">
             <input id="forensicsInput" type="file" class="hidden" />
             <p style="margin:0; font-weight: 500;">Drop any file to inspect hex bytes &amp; streaming hashes, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
-            <p class="sub-muted font-mono-tech">Streams 2 MB chunks for SHA-256 &amp; SHA-512 (handles multi-GB files without OOM)</p>
+            <p class="sub-muted font-mono-tech">Streams 2 MB chunks for SHA 256 &amp; SHA 512 (handles multi GB files)</p>
           </div>
 
           <div id="forensicsFileCard" class="hidden px-card-sm flex-row gap-3">
@@ -1109,19 +1125,19 @@
           <div class="px-card-sm stack-2-5 font-mono-tech" style="font-size:0.75rem;">
             <div class="flex-row flex-wrap justify-between gap-2">
               <span style="color:var(--text-muted);">True Signature:</span>
-              <span id="magicDetectedType" style="color:var(--teal);font-weight:600;">—</span>
+              <span id="magicDetectedType" style="color:var(--teal);font-weight:600;">None</span>
             </div>
 
             <div>
               <span class="lbl-micro">First 16 Bytes (Hex · ASCII):</span>
-              <code id="magicHeadHex" class="code-box break-all">—</code>
-              <code id="magicHeadAscii" class="code-box break-all" style="margin-top:0.25rem;color:var(--text-muted);">—</code>
+              <code id="magicHeadHex" class="code-box break-all">None</code>
+              <code id="magicHeadAscii" class="code-box break-all" style="margin-top:0.25rem;color:var(--text-muted);">None</code>
             </div>
 
             <div>
               <span class="lbl-micro">Last 16 Bytes (Hex · ASCII):</span>
-              <code id="magicTailHex" class="code-box break-all">—</code>
-              <code id="magicTailAscii" class="code-box break-all" style="margin-top:0.25rem;color:var(--text-muted);">—</code>
+              <code id="magicTailHex" class="code-box break-all">None</code>
+              <code id="magicTailAscii" class="code-box break-all" style="margin-top:0.25rem;color:var(--text-muted);">None</code>
             </div>
           </div>
         </div>
@@ -1130,7 +1146,7 @@
           <div class="sec-head">
             <div>
               <h2 class="title-lg" style="font-size:0.95rem;">Streaming Cryptographic Checksums</h2>
-              <p class="sub-muted">Incremental 2 MB chunked SHA-256 &amp; SHA-512 computation (zero full-file RAM spikes)</p>
+              <p class="sub-muted">Incremental 2 MB chunked SHA 256 &amp; SHA 512 (no full file RAM spike)</p>
             </div>
           </div>
 
@@ -1144,18 +1160,18 @@
 
           <div class="px-card-sm stack-2 font-mono-tech" style="font-size:0.75rem;">
             <div class="flex-row justify-between">
-              <span style="color:var(--text-muted);">SHA-256</span>
+              <span style="color:var(--text-muted);">SHA 256</span>
               <button id="copySha256Btn" type="button" style="background:none;border:none;color:var(--accent-hi);font-size:0.7rem;cursor:pointer;">Copy</button>
             </div>
-            <code id="sha256Output" class="code-box break-all" style="color:var(--text-main);">—</code>
+            <code id="sha256Output" class="code-box break-all" style="color:var(--text-main);">None</code>
           </div>
 
           <div class="px-card-sm stack-2 font-mono-tech" style="font-size:0.75rem;">
             <div class="flex-row justify-between">
-              <span style="color:var(--text-muted);">SHA-512</span>
+              <span style="color:var(--text-muted);">SHA 512</span>
               <button id="copySha512Btn" type="button" style="background:none;border:none;color:var(--accent-hi);font-size:0.7rem;cursor:pointer;">Copy</button>
             </div>
-            <code id="sha512Output" class="code-box break-all" style="color:var(--text-main);">—</code>
+            <code id="sha512Output" class="code-box break-all" style="color:var(--text-main);">None</code>
           </div>
 
           <div class="px-card-sm stack-2">
@@ -1163,8 +1179,8 @@
               <label for="expectedHashInput" class="lbl-micro font-mono-tech" style="margin:0;">Verify Expected Hash</label>
               <span id="expectedHashBadge" class="hidden badge font-mono-tech"></span>
             </div>
-            <input id="expectedHashInput" type="text" placeholder="Paste expected SHA-256 or SHA-512 checksum..." class="px-input font-mono-tech" style="font-size:0.75rem;" />
-            <p id="expectedHashNote" class="sub-muted font-mono-tech">Drop a file in the verifier card on the left, then paste a published checksum to check integrity.</p>
+            <input id="expectedHashInput" type="text" placeholder="Paste expected SHA 256 or SHA 512 checksum..." class="px-input font-mono-tech" style="font-size:0.75rem;" />
+            <p id="expectedHashNote" class="sub-muted font-mono-tech">Drop a file, then paste a checksum to verify integrity.</p>
           </div>
         </div>
       </div>
@@ -1180,7 +1196,7 @@
           <div class="sec-head">
             <div>
               <h1 class="title-lg">Image Metadata Scrubber</h1>
-              <p class="sub-muted">Images only (JPEG, PNG, WebP) · Lossless binary segment strip for JPEG/PNG or full pixel redraw</p>
+              <p class="sub-muted">JPEG, PNG, WebP · Lossless binary strip or full pixel redraw</p>
             </div>
             <span class="badge badge-blue font-mono-tech">Images Only</span>
           </div>
@@ -1190,30 +1206,30 @@
             <p style="margin:0; font-weight: 500;">
               Drop JPEG, PNG, or WebP images to inspect &amp; strip metadata, paste (<span class="font-mono-tech" style="color:var(--accent-hi);font-size:0.75rem;">Ctrl/Cmd+V</span>), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
             </p>
-            <p id="scrubQueueCount" class="sub-muted font-mono-tech">Scans EXIF/XMP/IPTC/ICC/COM segments before &amp; after · 0 queued</p>
+            <p id="scrubQueueCount" class="sub-muted font-mono-tech">Scans EXIF/XMP/IPTC/ICC/COM segments · 0 queued</p>
           </div>
 
           <div class="px-card-sm grid-sm-2">
             <div>
               <label for="scrubModeSelect" class="lbl-micro font-mono-tech">Sanitization Method</label>
               <select id="scrubModeSelect" class="px-input" style="font-size:0.75rem;">
-                <option value="lossless-bin" selected>Lossless Binary Segment Strip (JPEG/PNG · Zero Pixel Re-encode)</option>
-                <option value="canvas-redraw">Canvas Pixel Redraw (Re-encodes Pixels · Required for WebP)</option>
+                <option value="lossless-bin" selected>Lossless Binary Strip (JPEG/PNG)</option>
+                <option value="canvas-redraw">Canvas Pixel Redraw (required for WebP)</option>
               </select>
             </div>
             <div>
               <label for="scrubFormatSelect" class="lbl-micro font-mono-tech">Output Format (Canvas Mode)</label>
               <select id="scrubFormatSelect" class="px-input" style="font-size:0.75rem;">
-                <option value="auto" selected>Match Original (JPEG / PNG / WebP)</option>
-                <option value="image/png">PNG (Lossless Pixel Redraw)</option>
-                <option value="image/jpeg">JPEG (Max Q100 · Lossy)</option>
-                <option value="image/webp">WebP (Max Q100 · Lossy)</option>
+                <option value="auto" selected>Match Original</option>
+                <option value="image/png">PNG (Lossless)</option>
+                <option value="image/jpeg">JPEG (Lossy, Max Q100)</option>
+                <option value="image/webp">WebP (Lossy, Max Q100)</option>
               </select>
             </div>
           </div>
 
           <p class="sub-muted font-mono-tech">
-            Scope note: Strips image metadata only (for audio/video metadata removal, uncheck "Preserve Tags" in Convert → Audio). Lossless Binary Strip removes JPEG APP1/APP2/APP13/COM &amp; PNG eXIf/tEXt/iTXt/zTXt/iCCP chunks untouched; WebP automatically uses Canvas redraw.
+            Strips image metadata only. For audio/video metadata removal, uncheck "Preserve Tags" in Audio mode. Lossless Binary Strip removes JPEG APP1/APP2/APP13/COM &amp; PNG eXIf/tEXt/iTXt/zTXt/iCCP chunks; WebP uses Canvas redraw.
           </p>
 
           <div class="flex-row flex-wrap gap-2">
@@ -1223,7 +1239,7 @@
           </div>
 
           <button id="scrubZipBtn" type="button" class="px-btn px-btn-teal w-full font-mono-tech" disabled>
-            Download swissfile-clean.zip
+            Download clean files.zip
           </button>
 
           <div id="scrubProgressBox" class="hidden stack-2">
@@ -1241,8 +1257,8 @@
         <div class="px-panel stack-4">
           <div class="sec-head">
             <div>
-              <h2 class="title-lg">Client-Side File Locker (AES-256-GCM)</h2>
-              <p class="sub-muted">Streaming 4 MB chunked authenticated encryption (<span class="font-mono-tech" style="color:var(--accent-soft);">SWISSLK3</span>) · Backward-compatible with V1 &amp; V2</p>
+              <h2 class="title-lg">Local File Locker (AES 256 GCM)</h2>
+              <p class="sub-muted">Streaming 4 MB chunked encryption (<span class="font-mono-tech" style="color:var(--accent-soft);">SWISSLK3</span>) · Compatible with V1 &amp; V2</p>
             </div>
             <span class="badge badge-teal font-mono-tech">PBKDF2 600k</span>
           </div>
@@ -1252,7 +1268,7 @@
             <p style="margin:0; font-weight: 500;">
               Drop any file or <span class="font-mono-tech" style="color:var(--accent-soft);font-size:0.75rem;">.swisslock</span> container, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
             </p>
-            <p class="sub-muted font-mono-tech">PBKDF2-SHA256 (600,000 iters) · 16B Salt · Per-Chunk IV &amp; AAD · Original filename encrypted</p>
+            <p class="sub-muted font-mono-tech">PBKDF2 SHA256 (600,000 iters) · 16B Salt · Per Chunk IV &amp; AAD · Original filename encrypted</p>
           </div>
 
           <div id="lockerFileCard" class="hidden px-card-sm flex-row gap-3">
@@ -1273,7 +1289,7 @@
             </div>
             <input id="lockerPassword" type="password" autocomplete="new-password" placeholder="Enter strong passphrase (12+ chars recommended)..." class="px-input font-mono-tech" />
             <div class="flex-row justify-between font-mono-tech" style="font-size:0.7rem;margin-top:0.25rem;">
-              <span id="lockerStrengthLabel" style="color:var(--text-muted);">Passphrase strength: —</span>
+              <span id="lockerStrengthLabel" style="color:var(--text-muted);">Passphrase strength: none</span>
               <span id="lockerStrengthHint" style="color:var(--text-muted);"></span>
             </div>
           </div>
@@ -1292,9 +1308,99 @@
           </div>
 
           <div class="px-card-sm font-mono-tech stack-2-5" style="font-size:0.75rem;">
-            <p id="lockerStatusText" style="margin:0;color:var(--text-muted);">Container: SWISSLK3 (8B Magic + 4B KDF Iters + 16B Salt + 12B BaseIV + 4B ChunkSize + 4B ChunkCount + Per-Chunk GCM Tags)</p>
+            <p id="lockerStatusText" style="margin:0;color:var(--text-muted);">Container: SWISSLK3 (8B Magic + 4B KDF Iters + 16B Salt + 12B BaseIV + 4B ChunkSize + 4B ChunkCount + Per Chunk GCM Tags)</p>
             <div id="lockerDownloadSlot"></div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 5: ARCHIVER (ZIP & UNZIP)                                       -->
+    <!-- =================================================================== -->
+    <section id="panel-archiver" class="wb-panel hidden stack-5">
+      <div class="grid-2">
+        <!-- Tool 1: Compress (Zip) -->
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h1 class="title-lg">Compress (Zip)</h1>
+              <p class="sub-muted">Bundle multiple files into a single zip archive locally</p>
+            </div>
+            <span class="badge badge-blue font-mono-tech">JSZip</span>
+          </div>
+
+          <div id="zipDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="zipInput" type="file" multiple class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop files here or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p id="zipQueueCount" class="sub-muted font-mono-tech">Any file type accepted · 0 queued</p>
+          </div>
+
+          <div class="px-card-sm stack-2">
+            <label for="zipArchiveName" class="lbl-micro font-mono-tech">Archive Filename</label>
+            <input id="zipArchiveName" type="text" placeholder="archive" class="px-input font-mono-tech" style="font-size:0.8125rem;" />
+          </div>
+
+          <div id="zipQueueList" class="stack-1" style="max-height:16rem;overflow-y:auto;padding-right:0.25rem;"></div>
+
+          <div class="flex-row flex-wrap gap-2">
+            <button id="zipRunBtn" type="button" class="px-btn px-btn-primary flex-1" disabled>Create Zip Archive</button>
+            <button id="zipClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+
+          <div id="zipProgressBox" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+              <span id="zipStatusLabel">Compressing...</span>
+              <span id="zipPctLabel" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="zipSegTrack" class="seg-track"></div>
+          </div>
+
+          <div id="zipDownloadSlot"></div>
+        </div>
+
+        <!-- Tool 2: Extract (Unzip) -->
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h1 class="title-lg">Extract (Unzip)</h1>
+              <p class="sub-muted">Open a zip archive and download individual files</p>
+            </div>
+            <span class="badge badge-teal font-mono-tech">JSZip</span>
+          </div>
+
+          <div id="unzipDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="unzipInput" type="file" accept=".zip,application/zip,application/x-zip-compressed" class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop a zip file here or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p class="sub-muted font-mono-tech">Accepts zip archives</p>
+          </div>
+
+          <div id="unzipFileCard" class="hidden px-card-sm flex-row gap-3">
+            <div class="file-thumb"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="3" y="1" width="10" height="14" fill="#131D33" stroke="#60A5FA" stroke-width="1"/><rect x="5" y="4" width="6" height="1" fill="#3B82F6"/><rect x="5" y="7" width="4" height="1" fill="#2DD4BF"/><rect x="5" y="10" width="6" height="1" fill="#8A9BB8"/></svg></div>
+            <div class="min-w-0 flex-1">
+              <p id="unzipFileName" class="font-mono-tech truncate" style="margin:0;font-size:0.8125rem;"></p>
+              <p id="unzipFileSize" class="sub-muted font-mono-tech"></p>
+            </div>
+          </div>
+
+          <div id="unzipProgressBox" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+              <span id="unzipStatusLabel">Extracting...</span>
+              <span id="unzipPctLabel" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="unzipSegTrack" class="seg-track"></div>
+          </div>
+
+          <div class="flex-row flex-wrap gap-2">
+            <button id="unzipExtractAllBtn" type="button" class="px-btn px-btn-teal flex-1" disabled>Download All Files</button>
+            <button id="unzipClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+
+          <div id="unzipFileList" class="stack-1" style="max-height:20rem;overflow-y:auto;padding-right:0.25rem;"></div>
         </div>
       </div>
     </section>
@@ -1315,7 +1421,7 @@
   <!-- Legal Footer -->
   <footer class="wb-footer">
     <div class="container-wb flex-row flex-wrap justify-between gap-3">
-      <span class="font-mono-tech">swissfile.dev — Local Browser Processing · Zero User File Uploads</span>
+      <span class="font-mono-tech">swissfile.dev | Local Browser Processing · Zero User File Uploads</span>
       <div class="flex-row gap-4 font-mono-tech">
         <button type="button" data-legal="privacy" style="background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;">Privacy Policy</button>
         <button type="button" data-legal="terms" style="background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;">Terms of Use</button>
@@ -1323,6 +1429,13 @@
       </div>
     </div>
   </footer>
+
+  <!-- Google AdSense Slot: Below Footer Banner -->
+  <div class="container-wb" style="position:relative;z-index:10;padding-top:0.5rem;padding-bottom:1rem;">
+    <div id="adsense-footer" style="min-height:90px;background:transparent;border:2px solid var(--border-px);border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:0.6875rem;font-family:ui-monospace,monospace;">
+      <!-- Google AdSense Slot: replace this div's contents with your ad unit code -->
+    </div>
+  </div>
 
   <!-- Legal Info Modal -->
   <div id="legalModal" class="hidden modal-backdrop">
@@ -1676,7 +1789,7 @@
       }
 
       function copyToClipboard(text, label = 'Value') {
-        if (!text || text === '—') return;
+        if (!text || text === 'None' || text === '...') return;
         try {
           const ta = document.createElement('textarea');
           ta.value = text;
@@ -2466,6 +2579,8 @@
         } else if (state.activeTab === 'forensics') {
           addExifFiles(pasted);
           handleForensicsFile(pasted[0]);
+        } else if (state.activeTab === 'archiver') {
+          addZipFiles(pasted);
         } else if (state.activeTab === 'opsec') {
           const imgs = pasted.filter(isImageFile);
           if (imgs.length > 0) addScrubFiles(imgs);
@@ -2499,13 +2614,13 @@
         if (audios.length > 0) addAudioFiles(audios);
 
         if (preferredSub === 'photo' && photos.length === 0) {
-          if (videos.length > 0) { switchConvertSub('video'); showToast('Auto-switched to Convert → Video', 'info'); }
-          else if (audios.length > 0) { switchConvertSub('audio'); showToast('Auto-switched to Convert → Audio', 'info'); }
+          if (videos.length > 0) { switchConvertSub('video'); showToast('Switched to Video mode', 'info'); }
+          else if (audios.length > 0) { switchConvertSub('audio'); showToast('Switched to Audio mode', 'info'); }
         } else if (preferredSub === 'video' && videos.length === 0) {
-          if (photos.length > 0) { switchConvertSub('photo'); showToast('Auto-switched to Convert → Photo', 'info'); }
-          else if (audios.length > 0) { switchConvertSub('audio'); showToast('Auto-switched to Convert → Audio', 'info'); }
+          if (photos.length > 0) { switchConvertSub('photo'); showToast('Switched to Photo mode', 'info'); }
+          else if (audios.length > 0) { switchConvertSub('audio'); showToast('Switched to Audio mode', 'info'); }
         } else if (preferredSub === 'audio' && audios.length === 0) {
-          if (photos.length > 0) { switchConvertSub('photo'); showToast('Auto-switched to Convert → Photo', 'info'); }
+          if (photos.length > 0) { switchConvertSub('photo'); showToast('Switched to Photo mode', 'info'); }
         }
       }
 
@@ -2526,7 +2641,7 @@
 
           const isAnimGif = await detectAnimatedGif(file);
           if (isAnimGif) {
-            showToast(`${file.name}: Animated GIF detected — Canvas will flatten to Frame 1 (use Convert → Video to keep animation).`, 'warn');
+            showToast(`${file.name}: Animated GIF detected. Canvas will flatten to frame 1. Use Video mode to keep animation.`, 'warn');
           }
 
           const item = {
@@ -2549,7 +2664,7 @@
               renderPhotoQueue();
             })
             .catch(() => {
-              item.dims = 'Unreadable image — try Repair tab';
+              item.dims = 'Unreadable image, try Repair tab';
               renderPhotoQueue();
             });
         }
@@ -2714,9 +2829,9 @@
         state.photo.zipUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = state.photo.zipUrl;
-        a.download = 'swissfile-photos.zip';
+        a.download = 'swissfile_photos.zip';
         a.click();
-        showToast(`Downloaded swissfile-photos.zip (${formatBytes(blob.size)})`, 'success');
+        showToast(`Downloaded swissfile photos.zip (${formatBytes(blob.size)})`, 'success');
       }
 
       // =========================================================================
@@ -2807,7 +2922,7 @@
           probeVideoAndThumb(file).then((info) => {
             if (state.video.items.some((x) => x.id === item.id)) {
               item.thumbUrl = info.thumbUrl;
-              item.dims = info.width ? `${info.width}×${info.height} · ${info.duration.toFixed(1)}s` : 'Unreadable header — try Repair';
+              item.dims = info.width ? `${info.width}×${info.height} · ${info.duration.toFixed(1)}s` : 'Unreadable header, try Repair';
               renderVideoQueue();
             } else if (info.thumbUrl) {
               URL.revokeObjectURL(info.thumbUrl);
@@ -3007,9 +3122,9 @@
         state.video.zipUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = state.video.zipUrl;
-        a.download = 'swissfile-videos.zip';
+        a.download = 'swissfile_videos.zip';
         a.click();
-        showToast(`Downloaded swissfile-videos.zip (${formatBytes(blob.size)})`, 'success');
+        showToast(`Downloaded swissfile videos.zip (${formatBytes(blob.size)})`, 'success');
       }
 
       // =========================================================================
@@ -3157,7 +3272,7 @@
         const doneCount = state.audio.items.filter((x) => x.status === 'done' && x.outBlob).length;
 
         document.getElementById('audioQueueCount').textContent =
-          `Lossless Codecs (FLAC, ALAC, PCM WAV/AIFF) & Max-Bitrate Lossy (MP3 320k, AAC, Opus, OGG) · ${state.audio.items.length} queued`;
+          `Lossless Codecs (FLAC, ALAC, PCM WAV/AIFF) & Max Bitrate Lossy (MP3 320k, AAC, Opus, OGG) · ${state.audio.items.length} queued`;
         document.getElementById('audioRunBtn').disabled = state.busy.audio || state.audio.items.length === 0;
         document.getElementById('audioCancelBtn').classList.toggle('hidden', !state.busy.audio);
         document.getElementById('audioZipBtn').disabled = state.busy.audio || doneCount === 0;
@@ -3297,9 +3412,9 @@
         state.audio.zipUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = state.audio.zipUrl;
-        a.download = 'swissfile-audio.zip';
+        a.download = 'swissfile_audio.zip';
         a.click();
-        showToast(`Downloaded swissfile-audio.zip (${formatBytes(blob.size)})`, 'success');
+        showToast(`Downloaded swissfile audio.zip (${formatBytes(blob.size)})`, 'success');
       }
 
       // =========================================================================
@@ -3345,7 +3460,7 @@
         if (file.size === 0) {
           item.diagStatus = 'corrupted';
           item.diagLabel = 'EMPTY (0 B)';
-          item.diagDetail = 'Zero-byte file — cannot recover missing bytes';
+          item.diagDetail = 'Zero byte file, cannot recover missing bytes';
           return;
         }
 
@@ -3413,7 +3528,7 @@
           if (!hasEoi) {
             item.diagStatus = 'truncated';
             item.diagLabel = 'TRUNCATED EOF';
-            item.diagDetail = 'Missing JPEG EOI trailer (FF D9) — truncated image stream';
+            item.diagDetail = 'Missing JPEG EOI trailer (FF D9), truncated image stream';
             item.patchSpec = { appendJpegEoi: true };
             item.thumbUrl = URL.createObjectURL(file);
             return;
@@ -3428,7 +3543,7 @@
           if (!hasIend) {
             item.diagStatus = 'truncated';
             item.diagLabel = 'TRUNCATED EOF';
-            item.diagDetail = 'Missing PNG IEND chunk — truncated image stream';
+            item.diagDetail = 'Missing PNG IEND chunk, truncated image stream';
             item.patchSpec = { appendPngIend: true };
             return;
           }
@@ -3447,7 +3562,7 @@
           } catch (_) {
             item.diagStatus = 'corrupted';
             item.diagLabel = 'UNREADABLE';
-            item.diagDetail = 'Image bitmap decode failed — damaged bitstream';
+            item.diagDetail = 'Image bitmap decode failed, damaged bitstream';
           }
         } else if (item.kind === 'video') {
           const info = await probeVideoAndThumb(file);
@@ -3811,7 +3926,7 @@
                 }
               }
 
-              // Post-repair validation: verify image actually decodes with non-zero dimensions
+              // Post repair validation: verify image actually decodes with non-zero dimensions
               try {
                 const bmp = await createImageBitmap(rebuiltBlob);
                 const validW = bmp.width;
@@ -3983,16 +4098,16 @@
         state.repair.zipUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = state.repair.zipUrl;
-        a.download = 'swissfile-repaired.zip';
+        a.download = 'swissfile_repaired.zip';
         a.click();
-        showToast(`Downloaded swissfile-repaired.zip (${formatBytes(blob.size)})`, 'success');
+        showToast(`Downloaded swissfile repaired.zip (${formatBytes(blob.size)})`, 'success');
       }
 
       // =========================================================================
       // 13. TAB 3: FORENSICS (METADATA + CONTAINER ATOMS + STREAMING SHA-256/512)
       // =========================================================================
       function formatTagValue(val) {
-        if (val === null || val === undefined) return '—';
+        if (val === null || val === undefined) return 'None';
         if (val instanceof Date) {
           return Number.isNaN(val.getTime()) ? String(val) : val.toISOString().replace('T', ' ').slice(0, 23) + ' UTC';
         }
@@ -4025,12 +4140,12 @@
         const sig = detectMagicSignature(head16);
         pushTag('FILE', 'FileName', file.name);
         pushTag('FILE', 'FileSizeBytes', `${file.size} (${formatBytes(file.size)})`);
-        pushTag('FILE', 'LastModified', file.lastModified ? new Date(file.lastModified) : '—');
+        pushTag('FILE', 'LastModified', file.lastModified ? new Date(file.lastModified) : 'None');
         pushTag('FILE', 'DeclaredMIME', file.type || 'none');
         pushTag('FILE', 'DetectedMagicSignature', sig.label);
 
         let thumbUrl = null;
-        let dimensions = '—';
+        let dimensions = 'None';
         let codecSummary = '';
 
         if (isImageFile(file)) {
@@ -4111,7 +4226,7 @@
         }
 
         const camera = [mergedMeta.Make, mergedMeta.Model].filter(Boolean).join(' ').trim()
-          || (codecSummary ? `Codecs: ${codecSummary}` : (isVideoFile(file) ? 'Video Container' : isAudioFile(file) ? 'Audio Container' : '—'));
+          || (codecSummary ? `Codecs: ${codecSummary}` : (isVideoFile(file) ? 'Video Container' : isAudioFile(file) ? 'Audio Container' : 'None'));
         const hasGps = typeof mergedMeta.latitude === 'number' && typeof mergedMeta.longitude === 'number';
         const gps = hasGps ? `${mergedMeta.latitude.toFixed(6)}, ${mergedMeta.longitude.toFixed(6)}` : 'None';
         const gpsUrl = hasGps
@@ -4249,7 +4364,7 @@
         }
 
         drawer.classList.remove('hidden');
-        document.getElementById('totalMetaTitle').textContent = `Extracted Metadata — ${selected.filename}`;
+        document.getElementById('totalMetaTitle').textContent = `Extracted Metadata | ${selected.filename}`;
         document.getElementById('totalMetaSubtitle').textContent =
           `${selected.totalTags} fields extracted across ${Object.keys(selected.groups).length} metadata group(s)`;
 
@@ -4589,9 +4704,9 @@
 
         document.getElementById('magicDetectedType').textContent = sig.label;
         document.getElementById('magicHeadHex').textContent = bytesToHex(headBytes) || 'Empty';
-        document.getElementById('magicHeadAscii').textContent = `ASCII: ${bytesToAscii(headBytes) || '—'}`;
+        document.getElementById('magicHeadAscii').textContent = `ASCII: ${bytesToAscii(headBytes) || 'None'}`;
         document.getElementById('magicTailHex').textContent = bytesToHex(tailBytes) || 'Empty';
-        document.getElementById('magicTailAscii').textContent = `ASCII: ${bytesToAscii(tailBytes) || '—'}`;
+        document.getElementById('magicTailAscii').textContent = `ASCII: ${bytesToAscii(tailBytes) || 'None'}`;
 
         const badge = document.getElementById('forensicsSpoofBadge');
         if (sig.exts === null) {
@@ -4815,7 +4930,7 @@
         } catch (err) {
           return {
             state: 'verification-failed',
-            text: `Post-scrub parser threw error: ${(err && err.message) || 'Unknown parse error'}`,
+            text: `Post scrub parser threw error: ${(err && err.message) || 'Unknown parse error'}`,
           };
         }
       }
@@ -4898,7 +5013,7 @@
         statusEl.textContent = state.cancel.scrub ? `Cancelled (${ok} processed)` : `Processed ${ok} / ${state.opsec.scrubItems.length} image(s)`;
         pctEl.textContent = '100%';
         setSegmentedProgress('scrubSegTrack', 100, 'teal');
-        if (ok > 0 && !state.cancel.scrub) showToast(`Processed ${ok} image(s) — inspect verification badges`, 'success');
+        if (ok > 0 && !state.cancel.scrub) showToast(`Processed ${ok} image(s), inspect verification badges`, 'success');
 
         state.busy.scrub = false;
         renderScrubQueue();
@@ -4916,9 +5031,9 @@
         state.opsec.scrubZipUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = state.opsec.scrubZipUrl;
-        a.download = 'swissfile-clean.zip';
+        a.download = 'swissfile_clean.zip';
         a.click();
-        showToast(`Downloaded swissfile-clean.zip (${formatBytes(blob.size)})`, 'success');
+        showToast(`Downloaded swissfile clean.zip (${formatBytes(blob.size)})`, 'success');
       }
 
       // =========================================================================
@@ -4931,7 +5046,7 @@
       const LOCKER_V3_ITERS = 600000;
 
       function evaluatePassphraseStrength(pass) {
-        if (!pass) return { label: '—', hint: '', color: 'var(--text-muted)', weak: true };
+        if (!pass) return { label: 'None', hint: '', color: 'var(--text-muted)', weak: true };
         let pool = 0;
         if (/[a-z]/.test(pass)) pool += 26;
         if (/[A-Z]/.test(pass)) pool += 26;
@@ -4939,12 +5054,12 @@
         if (/[^a-zA-Z0-9]/.test(pass)) pool += 32;
         const entropy = Math.round(pass.length * Math.log2(Math.max(1, pool)));
         if (pass.length < 8 || entropy < 45) {
-          return { label: `WEAK (~${entropy} bits)`, hint: 'Vulnerable to offline guessing — use 12+ mixed chars', color: 'var(--rose)', weak: true };
+          return { label: `WEAK (~${entropy} bits)`, hint: 'Vulnerable to offline guessing, use 12 or more mixed chars', color: 'var(--rose)', weak: true };
         }
         if (pass.length < 12 || entropy < 68) {
           return { label: `MODERATE (~${entropy} bits)`, hint: 'Acceptable; 14+ chars recommended for sensitive files', color: 'var(--amber)', weak: false };
         }
-        return { label: `STRONG (~${entropy} bits)`, hint: '600k PBKDF2-SHA256 iterations', color: 'var(--teal)', weak: false };
+        return { label: `STRONG (~${entropy} bits)`, hint: '600k PBKDF2 SHA256 iterations', color: 'var(--teal)', weak: false };
       }
 
       async function deriveAesKey(password, salt, iterations) {
@@ -5018,7 +5133,7 @@
 
         const strength = evaluatePassphraseStrength(pass);
         if (strength.weak) {
-          showToast('Warning: Weak passphrase used — consider 12+ mixed characters.', 'warn');
+          showToast('Warning: Weak passphrase used, consider 12 or more mixed characters.', 'warn');
         }
 
         const encBtn = document.getElementById('lockerEncryptBtn');
@@ -5307,31 +5422,272 @@
       }
 
       // =========================================================================
+      // 14B. ARCHIVER TAB (ZIP & UNZIP) | Powered by JSZip
+      // =========================================================================
+      const archiverState = {
+        zipItems: [],
+        unzipData: null,
+      };
+
+      // --- ZIP (Compress) ---
+      function addZipFiles(files) {
+        for (const f of files) {
+          if (f.size === 0) { showToast(`${f.name}: empty file skipped`, 'warn'); continue; }
+          if (archiverState.zipItems.some(i => i.file.name === f.name && i.file.size === f.size)) continue;
+          archiverState.zipItems.push({ file: f, id: crypto.randomUUID() });
+        }
+        renderZipQueue();
+      }
+
+      function removeZipItem(id) {
+        archiverState.zipItems = archiverState.zipItems.filter(i => i.id !== id);
+        renderZipQueue();
+      }
+
+      function clearZipQueue() {
+        archiverState.zipItems = [];
+        document.getElementById('zipDownloadSlot').innerHTML = '';
+        document.getElementById('zipProgressBox').classList.add('hidden');
+        renderZipQueue();
+      }
+
+      function renderZipQueue() {
+        const list = document.getElementById('zipQueueList');
+        const countEl = document.getElementById('zipQueueCount');
+        const btn = document.getElementById('zipRunBtn');
+        const items = archiverState.zipItems;
+        countEl.textContent = `Any file type accepted · ${items.length} queued`;
+        btn.disabled = items.length === 0;
+        if (items.length === 0) { list.innerHTML = ''; return; }
+        list.innerHTML = items.map(i => `
+          <div class="px-card-sm flex-row gap-3" style="padding:0.5rem 0.75rem;">
+            <div class="file-thumb">${SVG_BINARY}</div>
+            <div class="min-w-0 flex-1">
+              <p class="font-mono-tech truncate" style="margin:0;font-size:0.8125rem;">${escapeHtml(i.file.name)}</p>
+              <p class="sub-muted font-mono-tech">${formatBytes(i.file.size)}</p>
+            </div>
+            <button data-remove-zip="${i.id}" type="button" class="px-btn font-mono-tech" style="padding:0.25rem 0.5rem;font-size:0.7rem;">Remove</button>
+          </div>
+        `).join('');
+      }
+
+      async function runZipCompress() {
+        const items = archiverState.zipItems;
+        if (items.length === 0) return;
+        const okZip = await ensureDependency('jszip', () => Boolean(window.JSZip));
+        if (!okZip) { showToast('Failed to load JSZip library', 'error'); return; }
+        const zip = new window.JSZip();
+        const progBox = document.getElementById('zipProgressBox');
+        const statusEl = document.getElementById('zipStatusLabel');
+        const pctEl = document.getElementById('zipPctLabel');
+        progBox.classList.remove('hidden');
+
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          statusEl.textContent = `Adding ${i + 1} of ${items.length}: ${item.file.name}`;
+          const pct = Math.round(((i + 1) / items.length) * 50);
+          pctEl.textContent = `${pct}%`;
+          setSegmentedProgress('zipSegTrack', pct, 'blue');
+          zip.file(item.file.name, item.file);
+        }
+
+        statusEl.textContent = 'Generating zip archive...';
+        const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }, (meta) => {
+          const pct = Math.round(50 + (meta.percent * 0.5));
+          pctEl.textContent = `${pct}%`;
+          setSegmentedProgress('zipSegTrack', pct, 'blue');
+        });
+
+        let rawName = (document.getElementById('zipArchiveName').value.trim() || 'archive').replace(/\.zip$/i, '');
+        const archiveName = rawName + '.zip';
+        const url = URL.createObjectURL(blob);
+        document.getElementById('zipDownloadSlot').innerHTML = `
+          <a href="${url}" download="${escapeHtml(archiveName)}" class="px-btn px-btn-teal w-full font-mono-tech" style="text-align:center;margin-top:0.5rem;display:block;text-decoration:none;">
+            Download ${escapeHtml(archiveName)} (${formatBytes(blob.size)})
+          </a>
+        `;
+        statusEl.textContent = `Archive created: ${formatBytes(blob.size)}`;
+        pctEl.textContent = '100%';
+        setSegmentedProgress('zipSegTrack', 100, 'teal');
+        logLine(`Archiver: created ${archiveName} (${formatBytes(blob.size)}, ${items.length} files)`);
+        showToast(`Created ${archiveName}`, 'success');
+      }
+
+      // --- UNZIP (Extract) ---
+      async function handleUnzipFile(file) {
+        if (!file) return;
+        const okZip = await ensureDependency('jszip', () => Boolean(window.JSZip));
+        if (!okZip) { showToast('Failed to load JSZip library', 'error'); return; }
+
+        document.getElementById('unzipFileCard').classList.remove('hidden');
+        document.getElementById('unzipFileName').textContent = file.name;
+        document.getElementById('unzipFileSize').textContent = formatBytes(file.size);
+
+        const progBox = document.getElementById('unzipProgressBox');
+        const statusEl = document.getElementById('unzipStatusLabel');
+        const pctEl = document.getElementById('unzipPctLabel');
+        progBox.classList.remove('hidden');
+        statusEl.textContent = 'Reading archive...';
+        pctEl.textContent = '15%';
+        setSegmentedProgress('unzipSegTrack', 15, 'blue');
+
+        try {
+          const ab = await file.arrayBuffer();
+          const zip = await window.JSZip.loadAsync(ab);
+          const entries = [];
+          zip.forEach((path, entry) => {
+            if (!entry.dir) entries.push({ path, entry });
+          });
+
+          archiverState.unzipData = { zip, entries, file };
+          document.getElementById('unzipExtractAllBtn').disabled = entries.length === 0;
+
+          statusEl.textContent = `Found ${entries.length} file(s)`;
+          pctEl.textContent = '100%';
+          setSegmentedProgress('unzipSegTrack', 100, 'teal');
+          renderUnzipList(entries);
+          logLine(`Archiver: opened ${file.name} (${entries.length} files inside)`);
+        } catch (err) {
+          showToast(`Failed to read zip: ${err.message}`, 'error');
+          progBox.classList.add('hidden');
+        }
+      }
+
+      function renderUnzipList(entries) {
+        const list = document.getElementById('unzipFileList');
+        list.innerHTML = entries.map((e, i) => {
+          const size = e.entry._data ? (e.entry._data.uncompressedSize || 0) : 0;
+          return `
+            <div class="px-card-sm flex-row gap-3" style="padding:0.5rem 0.75rem;">
+              <div class="file-thumb">${SVG_BINARY}</div>
+              <div class="min-w-0 flex-1">
+                <p class="font-mono-tech truncate" style="margin:0;font-size:0.8125rem;">${escapeHtml(e.path)}</p>
+                <p class="sub-muted font-mono-tech">${size > 0 ? formatBytes(size) : 'compressed'}</p>
+              </div>
+              <button data-extract-single="${i}" type="button" class="px-btn px-btn-primary font-mono-tech" style="padding:0.25rem 0.6rem;font-size:0.7rem;">Download</button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      async function extractSingleFile(index) {
+        const data = archiverState.unzipData;
+        if (!data) return;
+        const entry = data.entries[index];
+        if (!entry) return;
+        try {
+          const blob = await entry.entry.async('blob');
+          const filename = entry.path.includes('/') ? entry.path.split('/').pop() : entry.path;
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+          showToast(`Extracted ${filename}`, 'success');
+          logLine(`Archiver: extracted ${filename} (${formatBytes(blob.size)})`);
+        } catch (err) {
+          showToast(`Extract failed: ${err.message}`, 'error');
+        }
+      }
+
+      async function extractAllFiles() {
+        const data = archiverState.unzipData;
+        if (!data || data.entries.length === 0) return;
+
+        const statusEl = document.getElementById('unzipStatusLabel');
+        const pctEl = document.getElementById('unzipPctLabel');
+
+        for (let i = 0; i < data.entries.length; i++) {
+          const e = data.entries[i];
+          const filename = e.path.includes('/') ? e.path.split('/').pop() : e.path;
+          statusEl.textContent = `Extracting ${i + 1} of ${data.entries.length}: ${filename}`;
+          const pct = Math.round(((i + 1) / data.entries.length) * 100);
+          pctEl.textContent = `${pct}%`;
+          setSegmentedProgress('unzipSegTrack', pct, 'blue');
+          const blob = await e.entry.async('blob');
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+          if (data.entries.length > 1) {
+            await new Promise(r => setTimeout(r, 250));
+          }
+        }
+
+        statusEl.textContent = `All ${data.entries.length} files extracted`;
+        pctEl.textContent = '100%';
+        setSegmentedProgress('unzipSegTrack', 100, 'teal');
+        showToast(`Extracted all ${data.entries.length} files`, 'success');
+        logLine(`Archiver: extracted all ${data.entries.length} files from ${data.file.name}`);
+      }
+
+      function clearUnzipQueue() {
+        archiverState.unzipData = null;
+        document.getElementById('unzipFileCard').classList.add('hidden');
+        document.getElementById('unzipProgressBox').classList.add('hidden');
+        document.getElementById('unzipFileList').innerHTML = '';
+        document.getElementById('unzipExtractAllBtn').disabled = true;
+      }
+
+      // =========================================================================
       // 15. LEGAL & NETWORK AUDIT MODALS + EVENT BINDING
       // =========================================================================
       const LEGAL_DOCS = {
         privacy: {
-          title: 'Privacy Policy & Network Audit — swissfile.dev',
+          title: 'Privacy Policy | swissfile.dev',
           body: `
-            <p><strong style="color:var(--text-main);">1. Zero User File, Metadata, or Passphrase Uploads:</strong> All photo, video, audio, metadata, checksum, and AES-256-GCM encryption operations run strictly inside your browser's memory. User files and passphrases are never transmitted over the network.</p>
-            <p><strong style="color:var(--text-main);">2. External CDN Asset Fetches (Unless Self-Hosted):</strong> When open-source libraries are not self-hosted under <code style="color:var(--accent-soft);">./vendor/</code>, your browser makes standard GET requests to pinned versions on <code style="color:var(--accent-soft);">unpkg.com</code> or <code style="color:var(--accent-soft);">cdn.jsdelivr.net</code> to fetch <code style="color:var(--accent-soft);">@ffmpeg/ffmpeg@0.12.10</code>, <code style="color:var(--accent-soft);">@ffmpeg/core@0.12.6</code>, <code style="color:var(--accent-soft);">jszip@3.10.1</code>, and <code style="color:var(--accent-soft);">exifr@7.1.3</code>. No user data is sent in these requests.</p>
-            <p><strong style="color:var(--text-main);">3. Optional External Map Links:</strong> In Forensics, GPS coordinates are never transmitted automatically. Clicking an <em>"Open External Map"</em> link navigates to <code style="color:var(--accent-soft);">openstreetmap.org</code> with those coordinates in the URL.</p>
+            <p><strong style="color:var(--text-main);">1. 100% Local Processing</strong></p>
+            <p>All file conversion, repair, metadata inspection, archiving, hashing, and AES 256 GCM encryption operations run entirely inside your browser. Your files, passphrases, and personal data never leave your device and are never uploaded to any server.</p>
+
+            <p><strong style="color:var(--text-main);">2. Third Party Advertising</strong></p>
+            <p>This site displays advertisements delivered by Google AdSense. Google and its partners use cookies to serve ads based on prior visits to this or other websites. You may opt out of personalized advertising by visiting Google Ad Settings or aboutads.info.</p>
+
+            <p><strong style="color:var(--text-main);">3. External Open Source Libraries</strong></p>
+            <p>When libraries are not bundled locally under <code style="color:var(--accent-soft);">./vendor/</code>, your browser retrieves pinned open source packages from <code style="color:var(--accent-soft);">unpkg.com</code> or <code style="color:var(--accent-soft);">cdn.jsdelivr.net</code>. No user files or personal details are included in these requests.</p>
+
+            <p><strong style="color:var(--text-main);">4. Optional Map Links</strong></p>
+            <p>GPS coordinates found in photo metadata are never transmitted automatically. Choosing an external map link opens openstreetmap.org with those coordinates in the URL.</p>
+
+            <p><strong style="color:var(--text-main);">5. Cookies and Telemetry</strong></p>
+            <p>swissfile.dev does not store tracking cookies or run tracking analytics. The only cookies present on this website are those utilized by the Google AdSense advertising platform.</p>
           `,
         },
         terms: {
-          title: 'Terms of Use — swissfile.dev',
+          title: 'Terms of Use | swissfile.dev',
           body: `
-            <p><strong style="color:var(--text-main);">Provided "As Is":</strong> swissfile.dev is provided without warranty of any kind. Always keep backups of original files before running conversions, metadata stripping, encryption, or file repair.</p>
-            <p>Truncated or severely damaged media files may only be partially recoverable or unrecoverable depending on how much bitstream data is missing.</p>
+            <p><strong style="color:var(--text-main);">1. Acceptance</strong></p>
+            <p>By using swissfile.dev you agree to these terms. If you do not agree, please discontinue use of this site.</p>
+
+            <p><strong style="color:var(--text-main);">2. Service Description</strong></p>
+            <p>swissfile.dev is a browser based utility that performs all media and file operations locally on your machine. Files never touch a remote server.</p>
+
+            <p><strong style="color:var(--text-main);">3. Disclaimer of Warranties</strong></p>
+            <p>This service is provided "as is" and "as available" without warranty of any kind, whether express or implied, including warranties of merchantability, fitness for a particular purpose, or noninfringement. We do not guarantee that every repair, conversion, or archive operation will succeed.</p>
+
+            <p><strong style="color:var(--text-main);">4. Limitation of Liability</strong></p>
+            <p>In no event shall the authors or contributors be liable for any direct, indirect, incidental, or consequential damages arising from the use of this tool. Always keep backups of original files before converting, repairing, stripping metadata, or encrypting.</p>
+
+            <p><strong style="color:var(--text-main);">5. Advertising Disclosure</strong></p>
+            <p>This site displays third party advertisements through Google AdSense, which may place cookies according to our Privacy Policy.</p>
+
+            <p><strong style="color:var(--text-main);">6. Revisions</strong></p>
+            <p>These terms may be updated without prior announcement. Continued use constitutes acceptance of all modified terms.</p>
           `,
         },
         licenses: {
-          title: 'Open Source Licenses & Pinned Versions',
+          title: 'Open Source Licenses and Pinned Versions',
           body: `
             <p><strong style="color:var(--text-main);">FFmpeg:</strong> LGPL v2.1+ / GPL v2+ (ffmpeg.org).</p>
-            <p><strong style="color:var(--text-main);">ffmpeg.wasm (@ffmpeg/ffmpeg@0.12.10, @ffmpeg/core@0.12.6):</strong> MIT / GPL-2.0-or-later WebAssembly build of FFmpeg.</p>
-            <p><strong style="color:var(--text-main);">JSZip (jszip@3.10.1):</strong> MIT License — browser-side ZIP archiving.</p>
-            <p><strong style="color:var(--text-main);">exifr (exifr@7.1.3):</strong> MIT License — EXIF, GPS, XMP &amp; IPTC parser.</p>
+            <p><strong style="color:var(--text-main);">ffmpeg.wasm (@ffmpeg/ffmpeg@0.12.10, @ffmpeg/core@0.12.6):</strong> MIT / GPL 2.0 or later WebAssembly build of FFmpeg.</p>
+            <p><strong style="color:var(--text-main);">JSZip (jszip@3.10.1):</strong> MIT License, browser based ZIP archiving.</p>
+            <p><strong style="color:var(--text-main);">exifr (exifr@7.1.3):</strong> MIT License, EXIF, GPS, XMP and IPTC parser.</p>
           `,
         },
       };
@@ -5507,6 +5863,22 @@
         document.getElementById('lockerEncryptBtn').addEventListener('click', encryptLockerFile);
         document.getElementById('lockerDecryptBtn').addEventListener('click', decryptLockerFile);
 
+        // Tab 5: Archiver
+        wireDropzone('zipDropzone', 'zipInput', (files) => addZipFiles(files), true);
+        document.getElementById('zipRunBtn').addEventListener('click', runZipCompress);
+        document.getElementById('zipClearBtn').addEventListener('click', clearZipQueue);
+        document.getElementById('zipQueueList').addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-remove-zip]');
+          if (btn) removeZipItem(btn.dataset.removeZip);
+        });
+        wireDropzone('unzipDropzone', 'unzipInput', (files) => handleUnzipFile(files[0]), false);
+        document.getElementById('unzipExtractAllBtn').addEventListener('click', extractAllFiles);
+        document.getElementById('unzipClearBtn').addEventListener('click', clearUnzipQueue);
+        document.getElementById('unzipFileList').addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-extract-single]');
+          if (btn) extractSingleFile(Number(btn.dataset.extractSingle));
+        });
+
         // Legal modals
         document.querySelectorAll('[data-legal]').forEach((btn) => {
           btn.addEventListener('click', () => openLegalModal(btn.dataset.legal));
@@ -5521,7 +5893,7 @@
       }
 
       // Initialize workbench
-      ['photoSegTrack', 'videoSegTrack', 'audioSegTrack', 'repairSegTrack', 'hashSegTrack', 'scrubSegTrack', 'lockerSegTrack'].forEach((id) => buildSegmentedTrack(id));
+      ['photoSegTrack', 'videoSegTrack', 'audioSegTrack', 'repairSegTrack', 'hashSegTrack', 'scrubSegTrack', 'lockerSegTrack', 'zipSegTrack', 'unzipSegTrack'].forEach((id) => buildSegmentedTrack(id));
       bindEvents();
       switchTab('convert');
       switchConvertSub('photo');
