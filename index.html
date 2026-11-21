@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='1' y='1' width='22' height='22' rx='5' fill='%23181B22' stroke='%232E3442' stroke-width='1.2'/%3E%3Cpath d='M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4V6z' fill='%23E5E7EB'/%3E%3C/svg%3E" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwissFile (swissfile.dev) — 100% Local Client-Side File Workbench</title>
+  <meta name="description" content="SwissFile (swissfile.dev) is a private, client-side file workbench. Convert photo, video, and audio locally with FFmpeg WASM, enhance images with AI 2x upscaling, edit, merge, split, and scrub PDFs, analyze EXIF metadata and file forensics, and encrypt files using AES-256-GCM with zero server uploads." />
+  <link rel="canonical" href="https://swissfile.dev/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0E1015" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://swissfile.dev/" />
+  <meta property="og:title" content="SwissFile (swissfile.dev) — 100% Local Client-Side File Workbench" />
+  <meta property="og:description" content="Private client-side file tools: FFmpeg WASM media conversion, single-image photo enhancer with AI 2x upscaler, PDF lab, EXIF and magic-byte forensics, and chunked AES-256-GCM encryption with zero server uploads." />
+  <meta property="og:site_name" content="SwissFile" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SwissFile (swissfile.dev) — 100% Local Client-Side File Workbench" />
+  <meta name="twitter:description" content="100% local, client-side file workbench. Convert media, enhance photos, edit PDFs, inspect forensics, and encrypt files with zero server uploads." />
+
+  <!-- JSON-LD Structured Data Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "SwissFile",
+    "url": "https://swissfile.dev",
+    "description": "100% private, client-side file workbench for conversion, repair, photo enhancement, PDF editing, forensics, and AES-256-GCM encryption with zero server uploads.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires JavaScript and HTML5 Canvas support",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Local photo, video, and audio conversion via FFmpeg WASM",
+      "Single image photo enhancer with AI 2x neural upscaling",
+      "PDF page editor, merger, splitter, and metadata scrubber",
+      "Deep file forensics, EXIF inspector, entropy meter, and image tampering lab",
+      "AES-256-GCM client-side file encryption and locker",
+      "Universal archiver, file splitter, smart renamer, and Base64/Hex decoder"
+    ]
+  }
+  </script>
+
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net; worker-src 'self' blob: https://unpkg.com https://cdn.jsdelivr.net; connect-src 'self' blob: https://formsubmit.co https://unpkg.com https://cdn.jsdelivr.net https://tfhub.dev https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; object-src 'none'; base-uri 'self';" />
+  <link rel="stylesheet" href="./css/theme.css?v=2.2.0" />
+  <link rel="stylesheet" href="./css/layout.css?v=2.2.0" />
+</head>
+<body>
+  <!-- Grid-locked slow-breathing square pixel background canvas (zero circles/balls) -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <!-- Non-blocking toast notification stack -->
+  <div id="toastStack"></div>
+
+  <!-- Top Workbench Header: 58px Precision Utility Bar -->
+  <header class="wb-header" role="banner" aria-label="Workbench Header">
+    <div class="container-wb wb-header-bar">
+      <!-- Precision Instrument Brand -->
+      <div class="wb-brand-block">
+        <svg id="siteLogo" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="shrink-0">
+          <rect x="1" y="1" width="22" height="22" rx="5" fill="#181B22" stroke="#2E3442" stroke-width="1.2" />
+          <path d="M10 6h4v4h4v4h-4v4h-4v-4H6v-4h4V6z" fill="#E5E7EB" />
+        </svg>
+        <span class="wb-wordmark">swissfile<span style="color:var(--text-dim);font-weight:400;">.dev</span></span>
+        <span class="badge badge-subtle font-mono-tech">v1.7</span>
+      </div>
+
+      <!-- Live Client-Side Sandbox Status Pill -->
+      <div class="wb-status-block hide-mobile">
+        <div class="status-pill font-mono-tech">
+          <span class="status-dot"></span>
+          <span>LOCAL SANDBOX · ZERO SERVER UPLOADS</span>
+        </div>
+      </div>
+
+      <!-- Right Controls: Guardrail Selector, Diagnostics Console, GitHub -->
+      <div class="flex-row gap-2">
+        <label class="flex-row gap-1-5 font-mono-tech text-muted" style="font-size:0.75rem;">
+          <span class="hide-mobile" style="color:var(--text-dim);">Max:</span>
+          <select id="maxFileMbSelect" class="px-select font-mono-tech">
+            <option value="2048" selected>2 GB</option>
+            <option value="0">Uncapped</option>
+          </select>
+        </label>
+
+        <!-- Hidden canvas toggle button preserving JS binding without clutter -->
+        <button id="bgToggleBtn" type="button" class="hidden" aria-hidden="true">BG: PAUSED</button>
+
+        <button id="consoleToggleBtn" type="button" class="px-btn px-btn-sm font-mono-tech" title="Open diagnostics console">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          <span>Console</span>
+        </button>
+
+        <a href="https://github.com/29darksight/swissfile" target="_blank" rel="noopener noreferrer" class="px-btn px-btn-sm px-btn-ghost font-mono-tech" title="Source code on GitHub">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          <span class="hide-mobile">GitHub</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- MAIN WORKBENCH NAVIGATION TABS: Precision Hardware Rail -->
+    <nav class="wb-nav-rail" aria-label="Primary workbench tabs">
+      <div class="container-wb wb-tab-strip">
+        <button data-tab="convert" type="button" class="wb-tab px-btn font-mono-tech">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+          <span>Convert</span>
+        </button>
+        <button data-tab="enhancer" type="button" class="wb-tab px-btn font-mono-tech">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m14.31 8 5.74 9.94"/><path d="M9.69 8h11.48"/><path d="m7.38 12 5.74-9.94"/><path d="M9.69 16 3.95 6.06"/><path d="M14.31 16H2.83"/><path d="m16.62 12-5.74 9.94"/></svg>
+          <span>Enhancer</span>
+        </button>
+        <button data-tab="documents" type="button" class="wb-tab px-btn font-mono-tech">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>Documents</span>
+        </button>
+        <button data-tab="repair" type="button" class="wb-tab px-btn font-mono-tech">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          <span>Repair</span>
+        </button>
+        <button data-tab="forensics" type="button" class="wb-tab px-btn font-mono-tech">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+          <span>Forensics</span>
+        </button>
+        <button data-tab="opsec" type="button" class="wb-tab px-btn font-mono-tech">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>OpSec</span>
+        </button>
+        <button data-tab="archiver" type="button" class="wb-tab px-btn font-mono-tech">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect width="22" height="5" x="1" y="3" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          <span>Archiver</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Workbench Workspace -->
+  <main class="container-wb wb-main" role="main" aria-label="Workbench tools and file processing workspace">
+
+        <!-- TAB 1: CONVERT (PHOTO | VIDEO | AUDIO)                              -->
+        <section id="panel-convert" class="wb-panel stack-5">
+      <div class="px-panel stack-5">
+        <div class="sec-head">
+          <div>
+            <h2 class="title-lg">Convert</h2>
+            <p class="sub-muted">Local photo, video &amp; audio conversion with codec labels, downscaling &amp; batch ZIP</p>
+          </div>
+          <!-- Sub-mode Switcher -->
+          <div class="flex-row gap-1-5">
+            <button data-convert-sub="photo" type="button" class="conv-sub-btn px-btn font-mono-tech">Photo</button>
+            <button data-convert-sub="video" type="button" class="conv-sub-btn px-btn font-mono-tech">Video</button>
+            <button data-convert-sub="audio" type="button" class="conv-sub-btn px-btn font-mono-tech">Audio</button>
+          </div>
+        </div>
+
+                <div id="conv-view-photo" class="conv-view stack-4">
+          <div id="photoDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="photoInput" type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif,.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif" class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop photos here, paste (<span class="font-mono-tech" style="color:var(--accent-hi);font-size:0.75rem;">Ctrl/Cmd+V</span>), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p id="photoQueueCount" class="sub-muted font-mono-tech">
+              Supported: PNG, JPEG, WebP, BMP, static GIF, browser supported AVIF · 0 queued
+            </p>
+          </div>
+
+          <div class="px-card grid-4">
+            <div>
+              <label for="photoFormat" class="lbl-micro font-mono-tech">Output Format</label>
+              <select id="photoFormat" class="px-input">
+                <option value="image/png">PNG (Lossless)</option>
+                <option value="image/jpeg" selected>JPEG (Lossy, White BG Fill)</option>
+                <option value="image/webp">WebP (Lossy Q10 to 100)</option>
+              </select>
+            </div>
+
+            <div>
+              <div class="flex-row justify-between lbl-micro font-mono-tech">
+                <label for="photoQuality">Encoder Quality</label>
+                <span id="photoQualityVal" style="color:var(--accent-hi);">100%</span>
+              </div>
+              <input id="photoQuality" type="range" min="10" max="100" value="100" class="px-slider" />
+            </div>
+
+            <div>
+              <label for="photoResize" class="lbl-micro font-mono-tech">Resolution Downscaler</label>
+              <select id="photoResize" class="px-input">
+                <option value="scale:1" selected>Scale: 100% (Original)</option>
+                <option value="scale:0.75">Scale: 75%</option>
+                <option value="scale:0.5">Scale: 50%</option>
+                <option value="scale:0.25">Scale: 25%</option>
+                <option value="width:1920">Max Width: 1920px</option>
+                <option value="width:1280">Max Width: 1280px</option>
+                <option value="width:800">Max Width: 800px</option>
+                <option value="width:480">Max Width: 480px</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="photoMaxKb" class="lbl-micro font-mono-tech">Target Max Size (KB, JPEG/WebP)</label>
+              <input id="photoMaxKb" type="number" min="10" placeholder="Optional (e.g. 150)" class="px-input font-mono-tech" />
+            </div>
+          </div>
+
+          <p class="sub-muted font-mono-tech">
+            Canvas redraws pixel buffers and strips metadata. JPEG/WebP Q100 is max encoder quality but still lossy. Animated GIFs flatten to frame 1; use Video mode for animated output. Max dimension: 16,384 px.
+          </p>
+
+          <div class="flex-row flex-wrap justify-between gap-3">
+            <div class="flex-row flex-wrap gap-2">
+              <button id="photoRunBtn" type="button" class="px-btn px-btn-primary" disabled>Convert Photos</button>
+              <button id="photoCancelBtn" type="button" class="px-btn px-btn-rose hidden">Cancel Batch</button>
+              <button id="photoZipBtn" type="button" class="px-btn px-btn-teal" disabled>Download All (.ZIP)</button>
+              <button id="photoClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+            </div>
+            <span id="photoDeltaSummary" class="sub-muted font-mono-tech"></span>
+          </div>
+
+          <div id="photoProgressBox" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+              <span id="photoStatusLabel">Processing 0 / 0</span>
+              <span id="photoPctLabel" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="photoSegTrack" class="seg-track"></div>
+          </div>
+
+          <div id="photoQueueList" class="stack-2"></div>
+        </div>
+
+                <div id="conv-view-video" class="conv-view hidden stack-4">
+          <div id="videoDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="videoInput" type="file" multiple accept="video/*,.mp4,.webm,.mov,.mkv,.avi,.m4v,.flv,.wmv,.gif" class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop videos or animated GIFs here to transcode, remux, or downscale locally, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p id="videoQueueCount" class="sub-muted font-mono-tech">
+              ffmpeg.wasm · MP4 (H.264) · WebM (VP9/VP8) · MOV · MKV · AVI · Animated GIF · 0 queued
+            </p>
+          </div>
+
+          <div class="px-card grid-4 items-end">
+            <div>
+              <label for="videoFormat" class="lbl-micro font-mono-tech">Target Container / Codec</label>
+              <select id="videoFormat" class="px-input">
+                <option value="mp4" selected>MP4 (H.264 + AAC)</option>
+                <option value="webm">WebM (VP9 + Opus)</option>
+                <option value="mov">MOV (H.264 + AAC)</option>
+                <option value="mkv">MKV (H.264 + AAC)</option>
+                <option value="avi">AVI (MPEG4 + MP3)</option>
+                <option value="gif">GIF (Animated · 15 fps)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="videoRes" class="lbl-micro font-mono-tech">Resolution Downscaler</label>
+              <select id="videoRes" class="px-input">
+                <option value="original" selected>Original</option>
+                <option value="1080">1080p (FHD)</option>
+                <option value="720">720p (HD)</option>
+                <option value="480">480p (SD)</option>
+                <option value="360">360p (Low)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="videoQuality" class="lbl-micro font-mono-tech">Encoding / Remux Mode</label>
+              <select id="videoQuality" class="px-input">
+                <option value="copy">Lossless Stream Remux (copy mode, no re encode)</option>
+                <option value="master">CRF 14 Visually Transparent (Lossy H.264/VP9)</option>
+                <option value="high" selected>CRF 20 High Quality (Lossy)</option>
+                <option value="balanced">CRF 26 Balanced (Lossy)</option>
+                <option value="compact">CRF 32 Compact (Lossy)</option>
+              </select>
+            </div>
+
+            <div style="padding-bottom: 0.35rem;">
+              <label class="flex-row gap-2" style="font-size:0.75rem; cursor:pointer;">
+                <input id="videoMute" type="checkbox" style="width:15px;height:15px;accent-color:var(--accent);" />
+                <span>Strip audio (<span class="font-mono-tech" style="color:var(--text-muted);">mute</span>)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="px-card-sm stack-1">
+            <div class="flex-row justify-between">
+              <span class="lbl-micro font-mono-tech" style="margin:0;text-transform:uppercase;">FFmpeg CLI Preview</span>
+              <button id="videoCopyCliBtn" type="button" class="font-mono-tech" style="background:none;border:none;color:var(--accent-hi);font-size:0.7rem;cursor:pointer;">Copy</button>
+            </div>
+            <code id="videoCliPreview" class="code-box font-mono-tech"></code>
+          </div>
+
+          <div class="flex-row flex-wrap gap-2">
+            <button id="videoRunBtn" type="button" class="px-btn px-btn-primary" disabled>Convert Videos</button>
+            <button id="videoCancelBtn" type="button" class="px-btn px-btn-rose hidden">Cancel Batch</button>
+            <button id="videoZipBtn" type="button" class="px-btn px-btn-teal" disabled>Download All (.ZIP)</button>
+            <button id="videoClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+
+          <div id="videoProgressBox" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+              <span id="videoStatusLabel">Ready</span>
+              <span id="videoPctLabel" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="videoSegTrack" class="seg-track"></div>
+          </div>
+
+          <div id="videoQueueList" class="stack-2"></div>
+        </div>
+
+                <div id="conv-view-audio" class="conv-view hidden stack-4">
+          <div id="audioDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="audioInput" type="file" multiple accept="audio/*,video/*,.flac,.alac,.m4a,.wav,.aiff,.aif,.mp3,.aac,.opus,.ogg,.mp4,.mkv,.mov,.webm" class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop audio files or videos (to extract audio tracks), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p id="audioQueueCount" class="sub-muted font-mono-tech">
+              Lossless Codecs (FLAC, ALAC, PCM WAV/AIFF) &amp; Max Bitrate Lossy (MP3 320k, AAC, Opus, OGG) · 0 queued
+            </p>
+          </div>
+
+          <div class="px-card grid-4">
+            <div>
+              <label for="audioFormat" class="lbl-micro font-mono-tech">Target Format (8 Distinct)</label>
+              <select id="audioFormat" class="px-input">
+                <option value="flac" selected>FLAC (.flac · Lossless Codec)</option>
+                <option value="alac">ALAC (.m4a · Apple Lossless)</option>
+                <option value="wav">WAV (.wav · Uncompressed PCM)</option>
+                <option value="aiff">AIFF (.aiff · Uncompressed PCM)</option>
+                <option value="mp3">MP3 (.mp3 · Lossy 320 kbps CBR)</option>
+                <option value="aac">AAC (.m4a · Lossy 320 kbps)</option>
+                <option value="opus">Opus (.opus · Lossy 256 kbps)</option>
+                <option value="ogg">OGG Vorbis (.ogg · Lossy Q10)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="audioQuality" class="lbl-micro font-mono-tech">Quality Tier</label>
+              <select id="audioQuality" class="px-input">
+                <option value="master" selected>Max / Lossless Codec</option>
+                <option value="high">High Transparent (256k / V0)</option>
+                <option value="compact">Compact (160k / 128k)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="audioSampleRate" class="lbl-micro font-mono-tech">Sample Rate</label>
+              <select id="audioSampleRate" class="px-input">
+                <option value="original" selected>Preserve Source Rate</option>
+                <option value="44100">44.1 kHz</option>
+                <option value="48000">48 kHz</option>
+                <option value="96000">96 kHz</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="audioBitDepth" class="lbl-micro font-mono-tech">Bit Depth (PCM / FLAC)</label>
+              <select id="audioBitDepth" class="px-input">
+                <option value="original" selected>Preserve Source Depth</option>
+                <option value="24">24 bit</option>
+                <option value="16">16 bit</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex-row flex-wrap justify-between gap-3">
+            <label class="flex-row gap-2" style="font-size:0.75rem; cursor:pointer;">
+              <input id="audioPreserveMeta" type="checkbox" checked style="width:15px;height:15px;accent-color:var(--accent);" />
+              <span>Preserve Tags &amp; Cover Art (<span class="font-mono-tech" style="color:var(--text-muted);">map metadata</span>)</span>
+            </label>
+            <span id="audioCodecNote" class="font-mono-tech" style="font-size:0.7rem;color:var(--teal);"></span>
+          </div>
+
+          <p class="sub-muted font-mono-tech">
+            Converting from a lossy source (MP3/AAC) to FLAC/WAV preserves the decoded waveform but cannot restore frequencies removed by the original encoder.
+          </p>
+
+          <div class="px-card-sm stack-1">
+            <div class="flex-row justify-between">
+              <span class="lbl-micro font-mono-tech" style="margin:0;text-transform:uppercase;">FFmpeg CLI Preview</span>
+              <button id="audioCopyCliBtn" type="button" class="font-mono-tech" style="background:none;border:none;color:var(--accent-hi);font-size:0.7rem;cursor:pointer;">Copy</button>
+            </div>
+            <code id="audioCliPreview" class="code-box font-mono-tech"></code>
+          </div>
+
+          <div class="flex-row flex-wrap gap-2">
+            <button id="audioRunBtn" type="button" class="px-btn px-btn-primary" disabled>Convert Audio</button>
+            <button id="audioCancelBtn" type="button" class="px-btn px-btn-rose hidden">Cancel Batch</button>
+            <button id="audioZipBtn" type="button" class="px-btn px-btn-teal" disabled>Download All (.ZIP)</button>
+            <button id="audioClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+
+          <div id="audioProgressBox" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+              <span id="audioStatusLabel">Ready</span>
+              <span id="audioPctLabel" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="audioSegTrack" class="seg-track"></div>
+          </div>
+
+          <div id="audioQueueList" class="stack-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: ENHANCER (PHOTO LAB & AI 2X UPSCALE) -->
+    <section id="panel-enhancer" class="wb-panel hidden stack-5">
+      <div class="px-panel stack-4">
+        <div class="sec-head">
+          <div>
+            <h2 class="title-lg">Enhancer</h2>
+            <p class="sub-muted">Single image photo enhancer with split preview, smart sharpen, denoise &amp; AI 2x upscale</p>
+          </div>
+          <span class="badge badge-teal font-mono-tech">Fast Canvas + WebGL AI</span>
+        </div>
+
+        <!-- Single Image Dropzone -->
+        <div id="enhanceDropzone" class="px-dropzone" tabindex="0" role="button">
+          <input id="enhanceInput" type="file" accept="image/png,image/jpeg,image/webp,image/bmp,image/avif" class="hidden" />
+          <p style="margin:0; font-weight: 500;">
+            Drop a single photo to enhance, paste (<span class="font-mono-tech" style="color:var(--accent-hi);font-size:0.75rem;">Ctrl/Cmd+V</span>), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+          </p>
+          <p class="sub-muted font-mono-tech" style="margin-top:0.25rem;">
+            Full native resolution · No downscaling · Single image processing preserves device memory
+          </p>
+        </div>
+
+        <!-- Interactive Enhancer Workspace -->
+        <div id="enhanceWorkspace" class="hidden stack-4">
+          <!-- Top Telemetry & Action Bar -->
+          <div class="flex-row flex-wrap justify-between items-center gap-2" style="border-bottom:1px solid var(--border-px);padding-bottom:0.75rem;">
+            <div class="flex-row items-center gap-2">
+              <span id="enhanceTelemetry" class="badge badge-blue font-mono-tech">No photo loaded</span>
+              <button id="enhanceNewBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.3rem 0.6rem;">Load Another Image</button>
+            </div>
+            <div class="flex-row items-center gap-2">
+              <select id="enhanceZoomSelect" class="px-select font-mono-tech" style="font-size:0.75rem;">
+                <option value="fit" selected>Fit to Image</option>
+                <option value="100%">100% Zoom</option>
+              </select>
+              <select id="enhanceExportFmt" class="px-select font-mono-tech" style="font-size:0.75rem;">
+                <option value="png">PNG (Lossless)</option>
+                <option value="jpeg">JPEG (95% Quality)</option>
+                <option value="webp">WebP (95% Quality)</option>
+              </select>
+              <button id="enhanceExportBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="font-size:0.75rem;padding:0.3rem 0.8rem;font-weight:600;">
+                Export Enhanced Image
+              </button>
+            </div>
+          </div>
+
+          <!-- Canvas Viewport with Split Comparison -->
+          <div id="enhanceCanvasWrap" style="background:var(--bg-deep);border:2px solid var(--border-px);border-radius:2px;display:flex;justify-content:center;align-items:center;padding:0.5rem;overflow:auto;max-height:560px;position:relative;">
+            <canvas id="enhanceCanvas" style="max-width:100%;display:block;cursor:ew-resize;"></canvas>
+          </div>
+
+          <!-- Split Position Slider -->
+          <div class="flex-row items-center gap-3" style="padding:0.25rem 0.5rem;background:var(--card-bg);border:1px solid var(--border-px);border-radius:2px;">
+            <span class="font-mono-tech sub-muted" style="font-size:0.75rem;min-width:7.5rem;">Original / Enhanced:</span>
+            <input id="enhanceSplitSlider" type="range" min="0" max="100" value="50" style="flex:1;accent-color:var(--teal);" />
+            <span id="enhanceSplitVal" class="badge badge-teal font-mono-tech" style="min-width:3rem;text-align:center;">50%</span>
+          </div>
+
+          <!-- Controls Grid -->
+          <div class="grid-2 gap-4">
+            <!-- Mode A: AI Super Resolution & Reconstruction Engine -->
+            <div class="px-card stack-3">
+              <div class="flex-row justify-between items-center" style="border-bottom:1px solid var(--border-px);padding-bottom:0.35rem;">
+                <span class="font-mono-tech" style="font-size:0.8125rem;font-weight:600;color:var(--text-main);">AI Super Resolution Engine</span>
+                <span id="enhanceEngineBadge" class="badge badge-teal font-mono-tech">WebGL GPU Active</span>
+              </div>
+
+              <div class="grid-2 gap-3" style="font-size:0.75rem;">
+                <div>
+                  <label class="font-mono-tech sub-muted" for="enhanceScaleSelect">Resolution Scale</label>
+                  <select id="enhanceScaleSelect" class="px-select font-mono-tech" style="width:100%;margin-top:0.2rem;">
+                    <option value="1">1x (Native Detail Boost)</option>
+                    <option value="2" selected>2x (Super Resolution 4x Pixels)</option>
+                    <option value="4">4x (Ultra Resolution 16x Pixels)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="font-mono-tech sub-muted" for="enhanceModeSelect">Enhancement Mode</label>
+                  <select id="enhanceModeSelect" class="px-select font-mono-tech" style="width:100%;margin-top:0.2rem;">
+                    <option value="photo" selected>Crisp Photo (Natural Detail)</option>
+                    <option value="anime">Anime and Art (Clean Line Art)</option>
+                    <option value="text">Text and Document (High Contrast)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="stack-2" style="font-size:0.75rem;">
+                <div>
+                  <div class="flex-row justify-between font-mono-tech sub-muted">
+                    <span>Edge Detail Reconstruction</span>
+                    <span id="enhanceEdgeBoostVal">65%</span>
+                  </div>
+                  <input id="enhanceEdgeBoost" type="range" min="0" max="100" value="65" style="width:100%;accent-color:var(--teal);" />
+                </div>
+                <div>
+                  <div class="flex-row justify-between font-mono-tech sub-muted">
+                    <span>Contrast Adaptive Sharpen (CAS)</span>
+                    <span id="enhanceSharpenVal">50%</span>
+                  </div>
+                  <input id="enhanceSharpen" type="range" min="0" max="100" value="50" style="width:100%;accent-color:var(--teal);" />
+                </div>
+                <div>
+                  <div class="flex-row justify-between font-mono-tech sub-muted">
+                    <span>Edge Preserving Denoise</span>
+                    <span id="enhanceDenoiseVal">20%</span>
+                  </div>
+                  <input id="enhanceDenoise" type="range" min="0" max="100" value="20" style="width:100%;accent-color:var(--teal);" />
+                </div>
+              </div>
+
+              <button id="enhanceRunBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="width:100%;padding:0.55rem 1rem;font-size:0.8125rem;font-weight:700;">
+                Run AI Super Resolution
+              </button>
+            </div>
+
+            <!-- Mode B: Color Grading & Neural Upscaler -->
+            <div class="px-card stack-3">
+              <div class="flex-row justify-between items-center" style="border-bottom:1px solid var(--border-px);padding-bottom:0.35rem;">
+                <span class="font-mono-tech" style="font-size:0.8125rem;font-weight:600;color:var(--text-main);">Tone &amp; Neural Model</span>
+                <div class="flex-row gap-1">
+                  <button id="enhanceAutoBtn" type="button" class="px-btn px-btn-primary font-mono-tech" style="font-size:0.6875rem;padding:0.25rem 0.5rem;">One Click Auto Tone</button>
+                  <button id="enhanceResetBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.25rem 0.5rem;">Reset All</button>
+                </div>
+              </div>
+
+              <div class="grid-2 gap-3" style="font-size:0.75rem;">
+                <div>
+                  <div class="flex-row justify-between font-mono-tech sub-muted">
+                    <span>Exposure</span>
+                    <span id="enhanceExposureVal">0</span>
+                  </div>
+                  <input id="enhanceExposure" type="range" min="-100" max="100" value="0" style="width:100%;accent-color:var(--accent-hi);" />
+                </div>
+                <div>
+                  <div class="flex-row justify-between font-mono-tech sub-muted">
+                    <span>Contrast</span>
+                    <span id="enhanceContrastVal">0</span>
+                  </div>
+                  <input id="enhanceContrast" type="range" min="-100" max="100" value="0" style="width:100%;accent-color:var(--accent-hi);" />
+                </div>
+                <div>
+                  <div class="flex-row justify-between font-mono-tech sub-muted">
+                    <span>Vibrance</span>
+                    <span id="enhanceVibranceVal">0</span>
+                  </div>
+                  <input id="enhanceVibrance" type="range" min="-100" max="100" value="0" style="width:100%;accent-color:var(--accent-hi);" />
+                </div>
+                <div>
+                  <div class="flex-row justify-between font-mono-tech sub-muted">
+                    <span>Warmth</span>
+                    <span id="enhanceWarmthVal">0</span>
+                  </div>
+                  <input id="enhanceWarmth" type="range" min="-100" max="100" value="0" style="width:100%;accent-color:var(--accent-hi);" />
+                </div>
+              </div>
+
+              <div style="border-top:1px solid var(--border-px);padding-top:0.4rem;" class="stack-2">
+                <div class="flex-row justify-between items-center">
+                  <span class="font-mono-tech sub-muted" style="font-size:0.75rem;">Neural Super Resolution (UpscalerJS)</span>
+                  <button id="enhanceAiBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.25rem 0.5rem;">Run Neural Model</button>
+                </div>
+                <div id="enhanceAiProgressWrap" class="hidden stack-2">
+                  <div class="flex-row justify-between font-mono-tech" style="font-size:0.6875rem;">
+                    <span class="sub-muted">Tiled Inference Progress</span>
+                    <span id="enhanceAiPct" style="color:var(--teal);">0%</span>
+                  </div>
+                  <div id="enhanceAiTrack" class="seg-track"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: DOCUMENTS (PDF LAB & TOOLS) -->
+    <section id="panel-documents" class="wb-panel hidden stack-5">
+      <div class="px-panel stack-4">
+        <div class="sec-head">
+          <div>
+            <h2 class="title-lg">Documents</h2>
+            <p class="sub-muted">PDF page editor, merger, splitter, metadata scrubber &amp; images to PDF compiler</p>
+          </div>
+          <!-- Sub-mode Switcher -->
+          <div class="flex-row flex-wrap gap-1-5">
+            <button data-doc-sub="editor" type="button" class="doc-sub-btn px-btn px-btn-primary font-mono-tech">Page Editor</button>
+            <button data-doc-sub="merger" type="button" class="doc-sub-btn px-btn font-mono-tech">PDF Merger</button>
+            <button data-doc-sub="splitter" type="button" class="doc-sub-btn px-btn font-mono-tech">PDF Splitter</button>
+            <button data-doc-sub="scrubber" type="button" class="doc-sub-btn px-btn font-mono-tech">Metadata Scrubber</button>
+            <button data-doc-sub="imgtopdf" type="button" class="doc-sub-btn px-btn font-mono-tech">Images to PDF</button>
+          </div>
+        </div>
+
+        <!-- Sub-panel 1: Page Editor -->
+        <div id="doc-panel-editor" class="doc-sub-panel stack-4">
+          <div id="pdfEditorDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="pdfEditorInput" type="file" accept=".pdf,application/pdf" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop a single PDF to edit pages, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">Delete, rotate 90 degrees, and reorder pages visually</p>
+          </div>
+
+          <div id="pdfEditorWorkspace" class="hidden stack-3">
+            <div class="flex-row flex-wrap justify-between items-center gap-2" style="border-bottom:1px solid var(--border-px);padding-bottom:0.5rem;">
+              <span id="pdfEditorPageCount" class="badge badge-teal font-mono-tech">0 pages</span>
+              <div class="flex-row items-center gap-2">
+                <input id="pdfPageFilterInput" type="text" placeholder="Remove pages: e.g. 2, 4 to 6" class="px-input font-mono-tech" style="width:14rem;font-size:0.75rem;padding:0.25rem 0.5rem;" />
+                <button id="pdfPageFilterBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Mark for Deletion</button>
+                <button id="pdfEditorExportBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.75rem;font-weight:600;">Export Edited PDF</button>
+                <button id="pdfEditorResetBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Reset</button>
+              </div>
+            </div>
+            <div id="pdfEditorGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(13rem, 1fr));gap:1rem;"></div>
+          </div>
+        </div>
+
+        <!-- Sub-panel 2: PDF Merger -->
+        <div id="doc-panel-merger" class="doc-sub-panel hidden stack-4">
+          <div id="pdfMergeDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="pdfMergeInput" type="file" multiple accept=".pdf,application/pdf" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop multiple PDF files to combine, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">Reorder files before merging into a single document</p>
+          </div>
+          <div class="flex-row flex-wrap justify-between items-center gap-2">
+            <span id="pdfMergeSummary" class="sub-muted font-mono-tech">0 files queued</span>
+            <div class="flex-row gap-2">
+              <button id="pdfMergeRunBtn" type="button" class="px-btn px-btn-teal font-mono-tech" disabled>Merge All PDFs</button>
+              <button id="pdfMergeClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="wb-table">
+              <thead>
+                <tr class="font-mono-tech">
+                  <th>PDF Filename</th>
+                  <th>Page Count</th>
+                  <th>File Size</th>
+                  <th style="text-align:right;">Order Controls</th>
+                </tr>
+              </thead>
+              <tbody id="pdfMergeTableBody">
+                <tr><td colspan="4" style="text-align:center;padding:1.25rem;color:var(--text-muted);">No PDF files added for merge yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sub-panel 3: PDF Splitter -->
+        <div id="doc-panel-splitter" class="doc-sub-panel hidden stack-4">
+          <div id="pdfSplitDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="pdfSplitInput" type="file" accept=".pdf,application/pdf" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop a single PDF to extract pages, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">Extract custom page ranges into a single PDF or individual page PDFs in ZIP</p>
+          </div>
+          <div id="pdfSplitWorkspace" class="hidden px-card stack-3">
+            <div class="flex-row justify-between items-center" style="border-bottom:1px solid var(--border-px);padding-bottom:0.5rem;">
+              <span id="pdfSplitInfo" class="badge badge-blue font-mono-tech">Document loaded</span>
+              <button id="pdfSplitResetBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Load Another</button>
+            </div>
+            <div class="grid-2 gap-3">
+              <div>
+                <label for="pdfSplitRange" class="font-mono-tech sub-muted" style="font-size:0.75rem;display:block;margin-bottom:0.25rem;">Page Range (e.g. 1 to 3, 5, 8 to 10):</label>
+                <input id="pdfSplitRange" type="text" placeholder="e.g. 1 to 3, 5, 8 to 10" class="px-input font-mono-tech" style="font-size:0.8125rem;" />
+              </div>
+              <div>
+                <label for="pdfSplitMode" class="font-mono-tech sub-muted" style="font-size:0.75rem;display:block;margin-bottom:0.25rem;">Output Bundle Format:</label>
+                <select id="pdfSplitMode" class="px-select font-mono-tech" style="font-size:0.8125rem;">
+                  <option value="single">Single Combined PDF</option>
+                  <option value="zip">Individual Page PDFs in ZIP</option>
+                </select>
+              </div>
+            </div>
+            <button id="pdfSplitRunBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="padding:0.5rem 1rem;font-weight:600;">
+              Extract Pages
+            </button>
+          </div>
+        </div>
+
+        <!-- Sub-panel 4: Metadata Scrubber -->
+        <div id="doc-panel-scrubber" class="doc-sub-panel hidden stack-4">
+          <div id="pdfScrubDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="pdfScrubInput" type="file" accept=".pdf,application/pdf" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop a PDF to inspect and scrub metadata, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">Inspect /Info tags and clear author, title, and XMP streams</p>
+          </div>
+          <div id="pdfScrubWorkspace" class="hidden stack-3">
+            <div class="flex-row justify-between items-center" style="border-bottom:1px solid var(--border-px);padding-bottom:0.5rem;">
+              <span class="font-mono-tech sub-muted" style="font-size:0.8125rem;">Existing PDF Metadata Tags</span>
+              <div class="flex-row gap-2">
+                <button id="pdfScrubRunBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.75rem;font-weight:600;">Scrub All Metadata</button>
+                <button id="pdfScrubResetBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Reset</button>
+              </div>
+            </div>
+            <div id="pdfScrubReadout" class="hidden px-card stack-1" style="border-color:var(--teal);"></div>
+            <div class="table-wrap">
+              <table class="wb-table">
+                <thead>
+                  <tr class="font-mono-tech">
+                    <th>Metadata Field</th>
+                    <th>Extracted Value</th>
+                  </tr>
+                </thead>
+                <tbody id="pdfScrubMetaTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-panel 5: Images to PDF -->
+        <div id="doc-panel-imgtopdf" class="doc-sub-panel hidden stack-4">
+          <div id="imgPdfDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="imgPdfInput" type="file" multiple accept="image/*,.jpg,.jpeg,.png,.webp,.bmp,.avif" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop multiple images to compile into a PDF document, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">JPEG, PNG, WebP, BMP, AVIF · Visual reordering &amp; page fit options</p>
+          </div>
+          <div class="flex-row flex-wrap justify-between items-center gap-2">
+            <span id="imgPdfSummary" class="sub-muted font-mono-tech">0 images queued</span>
+            <div class="flex-row flex-wrap items-center gap-2">
+              <button id="imgPdfSortAlphaBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Natural Sort A to Z</button>
+              <button id="imgPdfSortDateBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Sort by Date</button>
+              <button id="imgPdfSortRevBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Reverse Order</button>
+              <select id="imgPdfPageFit" class="px-select font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">
+                <option value="image">Fit to Image</option>
+                <option value="a4">A4 Portrait</option>
+              </select>
+              <button id="imgPdfCompileBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.75rem;font-weight:600;" disabled>Compile Images to PDF</button>
+              <button id="imgPdfClearBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Clear All</button>
+            </div>
+          </div>
+          <div id="imgPdfQueue" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(11rem, 1fr));gap:0.75rem;"></div>
+        </div>
+      </div>
+    </section>
+
+        <!-- TAB 2: REPAIR (DIAGNOSTICS + MULTI-STAGE SALVAGE & VALIDATION)      -->
+        <section id="panel-repair" class="wb-panel hidden stack-5">
+      <div class="px-panel stack-5">
+        <div class="sec-head">
+          <div>
+            <h2 class="title-lg">Repair</h2>
+            <p class="sub-muted">Format validation, corruption diagnostics, salvage &amp; decoder verification</p>
+          </div>
+          <div class="flex-row gap-1-5">
+            <button id="repairScopeCorruptBtn" type="button" class="px-btn font-mono-tech">Repair Issues Only</button>
+            <button id="repairScopeAllBtn" type="button" class="px-btn font-mono-tech">Rebuild All Queued</button>
+          </div>
+        </div>
+
+        <div id="repairDropzone" class="px-dropzone" tabindex="0" role="button">
+          <input id="repairInput" type="file" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.mp4,.mov,.mkv,.webm,.avi,.m4v,.mp3,.flac,.wav,.m4a,.ogg,.opus,.aiff" class="hidden" />
+          <p style="margin:0; font-weight: 500;">
+            Drop supported photos, videos &amp; audio files to diagnose &amp; salvage, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+          </p>
+          <p id="repairSummaryCounts" class="sub-muted font-mono-tech">
+            Supported: JPEG, PNG, WebP, GIF, BMP, MP4, MOV, MKV, WebM, AVI, MP3, FLAC, WAV, M4A, OGG, Opus · 0 queued
+          </p>
+        </div>
+
+        <!-- Multi-Stage Repair Options -->
+        <div class="grid-3">
+          <div class="px-card stack-2">
+            <p class="lbl-micro font-mono-tech" style="color:var(--accent-soft);text-transform:uppercase;margin:0;">1. Video Stream Salvage</p>
+            <p class="sub-muted">Stage 1: Lossless container remux (<span class="font-mono-tech" style="color:var(--text-main);">lossless remux mode</span>).</p>
+            <label class="flex-row gap-2" style="font-size:0.75rem;cursor:pointer;padding-top:0.25rem;">
+              <input id="repairVideoFallback" type="checkbox" checked style="width:15px;height:15px;accent-color:var(--accent);" />
+              <span>Stage 2 H.264 + AAC Re encode Fallback</span>
+            </label>
+          </div>
+
+          <div class="px-card stack-2">
+            <p class="lbl-micro font-mono-tech" style="color:var(--teal);text-transform:uppercase;margin:0;">2. Photo Container Salvage</p>
+            <p class="sub-muted">Strips leading garbage, appends missing JPEG <span class="font-mono-tech" style="color:var(--text-main);">FF D9</span> / PNG <span class="font-mono-tech" style="color:var(--text-main);">IEND</span> trailers (cannot invent missing scanlines), then validates pixel decode.</p>
+            <select id="repairPhotoOutFmt" class="px-input" style="padding:0.35rem 0.5rem;font-size:0.75rem;">
+              <option value="image/png" selected>Output: PNG (Lossless Rebuild)</option>
+              <option value="image/jpeg">Output: JPEG (Max Q100)</option>
+              <option value="image/webp">Output: WebP (Max Q100)</option>
+            </select>
+          </div>
+
+          <div class="px-card stack-2">
+            <p class="lbl-micro font-mono-tech" style="color:var(--amber);text-transform:uppercase;margin:0;">3. Audio Stream Salvage</p>
+            <p class="sub-muted">Rebuilds damaged audio headers &amp; resyncs broken frames via FFmpeg, then validates playable duration.</p>
+            <select id="repairAudioOutFmt" class="px-input" style="padding:0.35rem 0.5rem;font-size:0.75rem;">
+              <option value="flac" selected>Output: FLAC (Lossless Codec)</option>
+              <option value="wav">Output: WAV (Uncompressed PCM)</option>
+              <option value="mp3">Output: MP3 (320 kbps CBR)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="flex-row flex-wrap gap-2">
+          <button id="repairRunBtn" type="button" class="px-btn px-btn-primary" disabled>Repair Files</button>
+          <button id="repairCancelBtn" type="button" class="px-btn px-btn-rose hidden">Cancel Batch</button>
+          <button id="repairDeepScanBtn" type="button" class="px-btn px-btn-amber" disabled>Deep Stream Scan (FFmpeg)</button>
+          <button id="repairZipBtn" type="button" class="px-btn px-btn-teal" disabled>Download Validated (.ZIP)</button>
+          <button id="repairClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+        </div>
+
+        <!-- Progress -->
+        <div id="repairProgressBox" class="hidden stack-2">
+          <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+            <span id="repairStatusLabel">Working...</span>
+            <span id="repairPctLabel" style="color:var(--teal);">0%</span>
+          </div>
+          <div id="repairSegTrack" class="seg-track"></div>
+        </div>
+
+        <!-- Repair Queue List -->
+        <div id="repairQueueList" class="stack-2-5"></div>
+      </div>
+    </section>
+
+        <!-- TAB 3: FORENSICS (METADATA + CONTAINER HEADERS + HEX + STREAM SHA)  -->
+        <section id="panel-forensics" class="wb-panel hidden stack-5">
+      <!-- Sub-mode Switcher -->
+      <div class="px-panel stack-3" style="padding:0.75rem 1rem;">
+        <div class="flex-row flex-wrap justify-between items-center gap-2">
+          <div>
+            <h2 class="title-lg" style="font-size:1.05rem;">Forensics &amp; Deep Analysis</h2>
+            <p class="sub-muted">Metadata, container atoms, printable strings IOCs, binary diff, entropy meter &amp; tampering lab</p>
+          </div>
+          <div class="flex-row flex-wrap gap-1-5">
+            <button data-forensics-sub="meta" type="button" class="forensics-sub-btn px-btn px-btn-primary font-mono-tech">Metadata &amp; Atoms</button>
+            <button data-forensics-sub="strings" type="button" class="forensics-sub-btn px-btn font-mono-tech">Strings &amp; IOCs</button>
+            <button data-forensics-sub="diff" type="button" class="forensics-sub-btn px-btn font-mono-tech">Binary Diff</button>
+            <button data-forensics-sub="entropy" type="button" class="forensics-sub-btn px-btn font-mono-tech">Entropy Meter</button>
+            <button data-forensics-sub="tamper" type="button" class="forensics-sub-btn px-btn font-mono-tech">Tampering Lab</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-panel 1: Existing Metadata & Container Header Inspector -->
+      <div id="forensics-panel-meta" class="forensics-sub-panel stack-5">
+      <!-- Card 1: Metadata & Container Header Inspector -->
+      <div class="px-panel stack-4">
+        <div class="sec-head">
+          <div>
+            <h2 class="title-lg" style="font-size:0.95rem;">Metadata &amp; Container Inspector</h2>
+            <p class="sub-muted">EXIF, GPS, XMP, IPTC, ICC &amp; binary container atoms with FFmpeg stream info</p>
+          </div>
+          <span class="badge badge-teal font-mono-tech">exifr + binary atom parser</span>
+        </div>
+
+        <div id="exifDropzone" class="px-dropzone" tabindex="0" role="button">
+          <input id="exifInput" type="file" multiple accept="image/*,video/*,audio/*,.jpg,.jpeg,.png,.webp,.heic,.heif,.tif,.tiff,.mp4,.mov,.mkv,.webm,.avi,.flac,.mp3,.wav,.m4a,.ogg" class="hidden" />
+          <p style="margin:0; font-weight: 500;">
+            Drop media files to inspect metadata &amp; container headers, paste (<span class="font-mono-tech" style="color:var(--accent-hi);font-size:0.75rem;">Ctrl/Cmd+V</span>), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+          </p>
+        </div>
+
+        <!-- Inspected Files Queue Table -->
+        <div class="flex-row flex-wrap justify-between gap-2">
+          <span id="forensicsQueueSummary" class="sub-muted font-mono-tech">0 files inspected · click any row to inspect extracted tags</span>
+          <div class="flex-row flex-wrap gap-2">
+            <button id="exifExportJsonBtn" type="button" class="px-btn font-mono-tech" style="color:var(--accent-soft);" disabled>Export JSON</button>
+            <button id="exifExportCsvBtn" type="button" class="px-btn font-mono-tech" style="color:var(--teal);" disabled>Export CSV</button>
+            <button id="exifClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="wb-table">
+            <thead>
+              <tr class="font-mono-tech">
+                <th>Preview &amp; Filename</th>
+                <th>Dimensions / Stream</th>
+                <th>Device / Codec</th>
+                <th>GPS Coordinates (External Map Opt In)</th>
+                <th>Extracted Fields</th>
+              </tr>
+            </thead>
+            <tbody id="exifTableBody" class="font-mono-tech">
+              <tr>
+                <td colspan="5" style="padding:1.25rem;text-align:center;color:var(--text-muted);">No files inspected yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Complete Per-File Metadata Inspector Drawer -->
+        <div id="totalMetaDrawer" class="hidden px-card stack-3">
+          <div class="flex-row flex-wrap justify-between gap-2" style="border-bottom:1px solid var(--border-px);padding-bottom:0.625rem;">
+            <div>
+              <h2 id="totalMetaTitle" class="font-mono-tech" style="margin:0;font-size:0.875rem;font-weight:600;">Extracted Metadata</h2>
+              <p id="totalMetaSubtitle" class="sub-muted font-mono-tech" style="color:var(--teal);"></p>
+            </div>
+            <div class="flex-row flex-wrap gap-2">
+              <button id="deepProbeStreamsBtn" type="button" class="px-btn px-btn-amber font-mono-tech">Deep Stream Probe (FFmpeg)</button>
+              <input id="totalMetaSearch" type="text" placeholder="Filter tag key or value..." class="px-input font-mono-tech" style="width:14rem;padding:0.35rem 0.6rem;font-size:0.75rem;" />
+              <button id="copyAllTagsJsonBtn" type="button" class="px-btn font-mono-tech" style="color:var(--accent-hi);">Copy JSON</button>
+            </div>
+          </div>
+
+          <p class="sub-muted font-mono-tech">
+            Extracts standard metadata blocks via exifr and binary container headers. Proprietary MakerNotes or undocumented chunks may not decode.
+          </p>
+
+          <!-- Group Filter Pills -->
+          <div id="totalMetaGroupPills" class="flex-row flex-wrap gap-1-5"></div>
+
+          <!-- Complete Key-Value Table -->
+          <div style="max-height:24rem;overflow-y:auto;border:1px solid var(--border-px);border-radius:2px;background:var(--bg-deep);">
+            <table class="wb-table font-mono-tech">
+              <thead>
+                <tr>
+                  <th style="width:8.5rem;">Group</th>
+                  <th style="width:14rem;">Tag Name</th>
+                  <th>Decoded Value</th>
+                </tr>
+              </thead>
+              <tbody id="totalMetaTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cards 2 & 3: Hex Magic Bytes & Spoof Detector + Streaming Cryptographic Checksums -->
+      <div class="grid-2">
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Magic Bytes &amp; Spoof Detector</h2>
+              <p class="sub-muted">First &amp; last 16 bytes in hex to verify binary format and detect spoofed extensions</p>
+            </div>
+          </div>
+
+          <div id="forensicsDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="forensicsInput" type="file" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop any file to inspect hex bytes &amp; streaming hashes, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">Streams 2 MB chunks for SHA 256 &amp; SHA 512 (handles multi GB files)</p>
+          </div>
+
+          <div id="forensicsFileCard" class="hidden px-card-sm flex-row gap-3">
+            <div id="forensicsThumbSlot" class="file-thumb"></div>
+            <div class="min-w-0 flex-1">
+              <p id="forensicsFileName" class="font-mono-tech truncate" style="margin:0;font-size:0.8125rem;"></p>
+              <p id="forensicsFileSize" class="sub-muted font-mono-tech"></p>
+            </div>
+            <span id="forensicsSpoofBadge" class="badge font-mono-tech"></span>
+          </div>
+
+          <div class="px-card-sm stack-2-5 font-mono-tech" style="font-size:0.75rem;">
+            <div class="flex-row flex-wrap justify-between gap-2">
+              <span style="color:var(--text-muted);">True Signature:</span>
+              <span id="magicDetectedType" style="color:var(--teal);font-weight:600;">None</span>
+            </div>
+
+            <div>
+              <span class="lbl-micro">First 16 Bytes (Hex · ASCII):</span>
+              <code id="magicHeadHex" class="code-box break-all">None</code>
+              <code id="magicHeadAscii" class="code-box break-all" style="margin-top:0.25rem;color:var(--text-muted);">None</code>
+            </div>
+
+            <div>
+              <span class="lbl-micro">Last 16 Bytes (Hex · ASCII):</span>
+              <code id="magicTailHex" class="code-box break-all">None</code>
+              <code id="magicTailAscii" class="code-box break-all" style="margin-top:0.25rem;color:var(--text-muted);">None</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Streaming Cryptographic Checksums</h2>
+              <p class="sub-muted">Incremental 2 MB chunked SHA 256 &amp; SHA 512 (no full file RAM spike)</p>
+            </div>
+          </div>
+
+          <div id="hashProgressBox" class="hidden stack-1">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.7rem;">
+              <span id="hashProgressLabel">Hashing...</span>
+              <span id="hashProgressPct" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="hashSegTrack" class="seg-track"></div>
+          </div>
+
+          <div class="px-card-sm stack-2 font-mono-tech" style="font-size:0.75rem;">
+            <div class="flex-row justify-between">
+              <span style="color:var(--text-muted);">SHA 256</span>
+              <button id="copySha256Btn" type="button" style="background:none;border:none;color:var(--accent-hi);font-size:0.7rem;cursor:pointer;">Copy</button>
+            </div>
+            <code id="sha256Output" class="code-box break-all" style="color:var(--text-main);">None</code>
+          </div>
+
+          <div class="px-card-sm stack-2 font-mono-tech" style="font-size:0.75rem;">
+            <div class="flex-row justify-between">
+              <span style="color:var(--text-muted);">SHA 512</span>
+              <button id="copySha512Btn" type="button" style="background:none;border:none;color:var(--accent-hi);font-size:0.7rem;cursor:pointer;">Copy</button>
+            </div>
+            <code id="sha512Output" class="code-box break-all" style="color:var(--text-main);">None</code>
+          </div>
+
+          <div class="px-card-sm stack-2">
+            <div class="flex-row justify-between gap-2">
+              <label for="expectedHashInput" class="lbl-micro font-mono-tech" style="margin:0;">Verify Expected Hash</label>
+              <span id="expectedHashBadge" class="hidden badge font-mono-tech"></span>
+            </div>
+            <input id="expectedHashInput" type="text" placeholder="Paste expected SHA 256 or SHA 512 checksum..." class="px-input font-mono-tech" style="font-size:0.75rem;" />
+            <p id="expectedHashNote" class="sub-muted font-mono-tech">Drop a file, then paste a checksum to verify integrity.</p>
+          </div>
+        </div>
+      </div>
+      </div> <!-- End #forensics-panel-meta -->
+
+      <!-- Sub-panel 2: Strings & IOC Extractor -->
+      <div id="forensics-panel-strings" class="forensics-sub-panel hidden stack-4">
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Streaming Printable Strings &amp; IOC Extractor</h2>
+              <p class="sub-muted">Extract printable ASCII strings in 2 MB streaming chunks with automatic regex detection for URLs, IPv4, emails &amp; crypto hashes</p>
+            </div>
+            <span class="badge badge-teal font-mono-tech">Zero Memory Limit</span>
+          </div>
+
+          <div id="stringsDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="stringsInput" type="file" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop any binary, firmware, or document to extract strings, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">Streams multi gigabyte files in chunks without browser freezing</p>
+          </div>
+
+          <div class="flex-row flex-wrap justify-between items-center gap-2" style="background:var(--card-bg);padding:0.5rem 0.75rem;border:1px solid var(--border-px);border-radius:2px;">
+            <div class="flex-row flex-wrap items-center gap-2">
+              <span id="stringsFilePill" class="badge badge-blue font-mono-tech">No file loaded</span>
+              <span id="stringsCountPill" class="badge font-mono-tech">0 item(s) found</span>
+              <label class="flex-row items-center gap-1 font-mono-tech sub-muted" style="font-size:0.75rem;">
+                <span>Min Length:</span>
+                <input id="stringsMinLen" type="number" min="4" max="32" value="6" class="px-input font-mono-tech" style="width:3.5rem;padding:0.2rem 0.4rem;font-size:0.75rem;" />
+              </label>
+            </div>
+            <div class="flex-row gap-2">
+              <button id="stringsExportTxtBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.6rem;" disabled>Export TXT</button>
+              <button id="stringsExportJsonBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.6rem;" disabled>Export JSON</button>
+            </div>
+          </div>
+
+          <div id="stringsProgressWrap" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.6875rem;">
+              <span class="sub-muted">Scanning binary chunks for printable strings...</span>
+              <span id="stringsPct" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="stringsSegTrack" class="seg-track"></div>
+          </div>
+
+          <!-- IOC Category Filter Pills -->
+          <div class="flex-row flex-wrap gap-1-5">
+            <button data-ioc-filter="all" type="button" class="ioc-filter-btn px-btn px-btn-primary font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.6rem;">All Strings</button>
+            <button data-ioc-filter="urls" type="button" class="ioc-filter-btn px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.6rem;">URLs</button>
+            <button data-ioc-filter="ips" type="button" class="ioc-filter-btn px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.6rem;">IPv4 Addresses</button>
+            <button data-ioc-filter="emails" type="button" class="ioc-filter-btn px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.6rem;">Email Addresses</button>
+            <button data-ioc-filter="hashes" type="button" class="ioc-filter-btn px-btn font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.6rem;">Crypto Hashes</button>
+          </div>
+
+          <div id="stringsResultList" style="max-height:22rem;overflow-y:auto;border:1px solid var(--border-px);border-radius:2px;background:var(--bg-deep);font-family:ui-monospace,monospace;">
+            <div style="padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.75rem;">Drop a file to begin streaming strings extraction.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-panel 3: Binary Diff -->
+      <div id="forensics-panel-diff" class="forensics-sub-panel hidden stack-4">
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Binary File Diff &amp; Hex Compare</h2>
+              <p class="sub-muted">Compare two binaries byte for byte up to 10 MB and inspect exact differing offsets</p>
+            </div>
+            <span id="diffSummaryPill" class="badge badge-blue font-mono-tech">Drop 2 files to compare</span>
+          </div>
+
+          <div class="grid-2 gap-4">
+            <div class="stack-2">
+              <div class="flex-row justify-between items-center">
+                <span class="font-mono-tech" style="font-size:0.75rem;color:var(--accent-hi);">File A (Baseline)</span>
+                <span id="diffFileAPill" class="sub-muted font-mono-tech" style="font-size:0.6875rem;">Not selected</span>
+              </div>
+              <div id="diffDropzoneA" class="px-dropzone" tabindex="0" role="button" style="padding:1.25rem;">
+                <input id="diffInputA" type="file" class="hidden" />
+                <p style="margin:0; font-size:0.8125rem;">Drop Baseline File A</p>
+              </div>
+            </div>
+
+            <div class="stack-2">
+              <div class="flex-row justify-between items-center">
+                <span class="font-mono-tech" style="font-size:0.75rem;color:var(--rose);">File B (Modified)</span>
+                <span id="diffFileBPill" class="sub-muted font-mono-tech" style="font-size:0.6875rem;">Not selected</span>
+              </div>
+              <div id="diffDropzoneB" class="px-dropzone" tabindex="0" role="button" style="padding:1.25rem;">
+                <input id="diffInputB" type="file" class="hidden" />
+                <p style="margin:0; font-size:0.8125rem;">Drop Modified File B</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="wb-table">
+              <thead>
+                <tr class="font-mono-tech">
+                  <th>Offset (Hex)</th>
+                  <th>File A Byte</th>
+                  <th>File B Byte</th>
+                  <th>XOR Diff</th>
+                </tr>
+              </thead>
+              <tbody id="diffTableBody">
+                <tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Drop both files to compute binary diff.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-panel 4: Entropy Meter -->
+      <div id="forensics-panel-entropy" class="forensics-sub-panel hidden stack-4">
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Shannon Entropy &amp; Byte Distribution</h2>
+              <p class="sub-muted">Measure mathematical randomness (0.0000 to 8.0000 bits/byte) to identify compression, encryption, or plaintext</p>
+            </div>
+            <span class="badge badge-teal font-mono-tech">Streaming Shannon H</span>
+          </div>
+
+          <div id="entropyDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="entropyInput" type="file" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop any file to measure byte entropy, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">Scans entire file in chunks to build 256 byte frequency distribution</p>
+          </div>
+
+          <div class="px-card stack-3">
+            <div class="flex-row flex-wrap justify-between items-center gap-2" style="border-bottom:1px solid var(--border-px);padding-bottom:0.5rem;">
+              <div>
+                <span class="sub-muted font-mono-tech" style="font-size:0.75rem;">Calculated Entropy:</span>
+                <span id="entropyValueText" class="font-mono-tech" style="font-size:1.1rem;font-weight:700;color:var(--teal);margin-left:0.5rem;">0.0000 bits per byte</span>
+              </div>
+              <span id="entropyVerdictBadge" class="badge badge-blue font-mono-tech">Awaiting file</span>
+            </div>
+
+            <div>
+              <span class="sub-muted font-mono-tech" style="font-size:0.6875rem;display:block;margin-bottom:0.25rem;">Byte Frequency Distribution (0x00 to 0xFF):</span>
+              <canvas id="entropyHistogramCanvas" width="512" height="90" style="width:100%;height:90px;background:var(--bg-deep);border:1px solid var(--border-px);border-radius:2px;display:block;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-panel 5: Tampering Lab -->
+      <div id="forensics-panel-tamper" class="forensics-sub-panel hidden stack-4">
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Image Tampering &amp; Steganography Lab</h2>
+              <p class="sub-muted">LSB bit plane isolator and 15x amplified Error Level Analysis (ELA) for detecting digital edits</p>
+            </div>
+            <span class="badge badge-teal font-mono-tech">Pure Canvas</span>
+          </div>
+
+          <div id="tamperDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="tamperInput" type="file" accept="image/*,.jpg,.jpeg,.png,.webp" class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop an image to inspect for tampering or hidden data, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">JPEG, PNG, WebP · Isolates bit planes and visualizes compression artifacts</p>
+          </div>
+
+          <div id="tamperWorkspace" class="hidden stack-3">
+            <div class="flex-row flex-wrap justify-between items-center gap-2" style="border-bottom:1px solid var(--border-px);padding-bottom:0.5rem;">
+              <span id="tamperFilePill" class="badge badge-blue font-mono-tech">Image loaded</span>
+              <div class="flex-row flex-wrap gap-1">
+                <button id="lsbRBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.45rem;">R0</button>
+                <button id="lsbGBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.45rem;">G0</button>
+                <button id="lsbBBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.45rem;">B0</button>
+                <button id="lsbABtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.45rem;">Alpha0</button>
+                <button id="lsbAllBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.45rem;">Combined LSB</button>
+                <button id="runElaBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.6rem;font-weight:600;">Run ELA</button>
+                <button id="tamperResetBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.45rem;">Reset</button>
+                <button id="tamperNewBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.5rem;">Load Another</button>
+                <button id="tamperExportBtn" type="button" class="px-btn font-mono-tech" style="font-size:0.6875rem;padding:0.2rem 0.5rem;">Export</button>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-deep);border:2px solid var(--border-px);border-radius:2px;display:flex;justify-content:center;align-items:center;padding:0.5rem;overflow:hidden;">
+              <canvas id="tamperCanvas" style="max-width:100%;height:auto;display:block;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <!-- TAB 4: OPSEC (IMAGE METADATA SCRUBBER + CHUNKED AES-256-GCM LOCKER) -->
+        <section id="panel-opsec" class="wb-panel hidden stack-5">
+      <!-- Sub-mode Switcher -->
+      <div class="px-panel stack-3" style="padding:0.75rem 1rem;">
+        <div class="flex-row flex-wrap justify-between items-center gap-2">
+          <div>
+            <h2 class="title-lg" style="font-size:1.05rem;">OpSec &amp; Cryptography</h2>
+            <p class="sub-muted">Image metadata scrubbing, chunked AES 256 GCM encryption &amp; base64/hex conversions</p>
+          </div>
+          <div class="flex-row flex-wrap gap-1-5">
+            <button data-opsec-sub="scrublock" type="button" class="opsec-sub-btn px-btn px-btn-primary font-mono-tech">Scrubber &amp; Locker</button>
+            <button data-opsec-sub="b64hex" type="button" class="opsec-sub-btn px-btn font-mono-tech">Base64 &amp; Hex Encoder / Decoder</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-panel 1: Scrubber & Locker -->
+      <div id="opsec-panel-scrublock" class="opsec-sub-panel stack-5">
+      <div class="grid-2">
+        <!-- Tool 1: Image Metadata Scrubber -->
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Image Metadata Scrubber</h2>
+              <p class="sub-muted">JPEG, PNG, WebP · Lossless binary strip or full pixel redraw</p>
+            </div>
+            <span class="badge badge-blue font-mono-tech">Images Only</span>
+          </div>
+
+          <div id="scrubDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="scrubInput" type="file" multiple accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop JPEG, PNG, or WebP images to inspect &amp; strip metadata, paste (<span class="font-mono-tech" style="color:var(--accent-hi);font-size:0.75rem;">Ctrl/Cmd+V</span>), or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p id="scrubQueueCount" class="sub-muted font-mono-tech">Scans EXIF/XMP/IPTC/ICC/COM segments · 0 queued</p>
+          </div>
+
+          <div class="px-card-sm grid-sm-2">
+            <div>
+              <label for="scrubModeSelect" class="lbl-micro font-mono-tech">Sanitization Method</label>
+              <select id="scrubModeSelect" class="px-input" style="font-size:0.75rem;">
+                <option value="lossless-bin" selected>Lossless Binary Strip (JPEG/PNG)</option>
+                <option value="canvas-redraw">Canvas Pixel Redraw (required for WebP)</option>
+              </select>
+            </div>
+            <div>
+              <label for="scrubFormatSelect" class="lbl-micro font-mono-tech">Output Format (Canvas Mode)</label>
+              <select id="scrubFormatSelect" class="px-input" style="font-size:0.75rem;">
+                <option value="auto" selected>Match Original</option>
+                <option value="image/png">PNG (Lossless)</option>
+                <option value="image/jpeg">JPEG (Lossy, Max Q100)</option>
+                <option value="image/webp">WebP (Lossy, Max Q100)</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="sub-muted font-mono-tech">
+            Strips image metadata only. For audio/video metadata removal, uncheck "Preserve Tags" in Audio mode. Lossless Binary Strip removes JPEG APP1/APP2/APP13/COM &amp; PNG eXIf/tEXt/iTXt/zTXt/iCCP chunks; WebP uses Canvas redraw.
+          </p>
+
+          <div class="flex-row flex-wrap gap-2">
+            <button id="scrubRunBtn" type="button" class="px-btn px-btn-primary flex-1" disabled>Scrub &amp; Verify All</button>
+            <button id="scrubCancelBtn" type="button" class="px-btn px-btn-rose hidden">Cancel</button>
+            <button id="scrubClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+
+          <button id="scrubZipBtn" type="button" class="px-btn px-btn-teal w-full font-mono-tech" disabled>
+            Download clean files.zip
+          </button>
+
+          <div id="scrubProgressBox" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+              <span id="scrubStatusLabel">Scrubbing 0 / 0</span>
+              <span id="scrubPctLabel" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="scrubSegTrack" class="seg-track"></div>
+          </div>
+
+          <div id="scrubQueueList" class="stack-2" style="max-height:20rem;overflow-y:auto;padding-right:0.25rem;"></div>
+        </div>
+
+        <!-- Tool 2: Local AES-256-GCM Chunked File Locker -->
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg">Local File Locker (AES 256 GCM)</h2>
+              <p class="sub-muted">Streaming 4 MB chunked encryption (<span class="font-mono-tech" style="color:var(--accent-soft);">SWISSLK3</span>) · Compatible with V1 &amp; V2</p>
+            </div>
+            <span class="badge badge-teal font-mono-tech">PBKDF2 600k</span>
+          </div>
+
+          <div id="lockerDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="lockerInput" type="file" class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop any file or <span class="font-mono-tech" style="color:var(--accent-soft);font-size:0.75rem;">.swisslock</span> container, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p class="sub-muted font-mono-tech">PBKDF2 SHA256 (600,000 iters) · 16B Salt · Per Chunk IV &amp; AAD · Original filename encrypted</p>
+          </div>
+
+          <div id="lockerFileCard" class="hidden px-card-sm flex-row gap-3">
+            <div id="lockerThumbSlot" class="file-thumb"></div>
+            <div class="min-w-0 flex-1">
+              <p id="lockerFileName" class="font-mono-tech truncate" style="margin:0;font-size:0.8125rem;"></p>
+              <p id="lockerFileSize" class="sub-muted font-mono-tech"></p>
+            </div>
+          </div>
+
+          <div class="stack-1-5">
+            <div class="flex-row justify-between">
+              <label for="lockerPassword" class="lbl-micro font-mono-tech" style="margin:0;">Passphrase (Never Stored)</label>
+              <div class="flex-row gap-3">
+                <button id="lockerClearPassBtn" type="button" class="font-mono-tech" style="background:none;border:none;color:var(--text-muted);font-size:0.7rem;cursor:pointer;">Clear</button>
+                <button id="lockerTogglePassBtn" type="button" class="font-mono-tech" style="background:none;border:none;color:var(--accent-hi);font-size:0.7rem;cursor:pointer;">Show</button>
+              </div>
+            </div>
+            <input id="lockerPassword" type="password" autocomplete="new-password" placeholder="Enter strong passphrase (12+ chars recommended)..." class="px-input font-mono-tech" />
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.7rem;margin-top:0.25rem;">
+              <span id="lockerStrengthLabel" style="color:var(--text-muted);">Passphrase strength: none</span>
+              <span id="lockerStrengthHint" style="color:var(--text-muted);"></span>
+            </div>
+          </div>
+
+          <div class="grid-sm-2">
+            <button id="lockerEncryptBtn" type="button" class="px-btn px-btn-primary" disabled>Encrypt (.swisslock)</button>
+            <button id="lockerDecryptBtn" type="button" class="px-btn px-btn-teal" disabled>Decrypt &amp; Restore</button>
+          </div>
+
+          <div id="lockerProgressBox" class="hidden stack-1">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.7rem;">
+              <span id="lockerProgLabel">Working...</span>
+              <span id="lockerProgPct" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="lockerSegTrack" class="seg-track"></div>
+          </div>
+
+          <div class="px-card-sm font-mono-tech stack-2-5" style="font-size:0.75rem;">
+            <p id="lockerStatusText" style="margin:0;color:var(--text-muted);">Container: SWISSLK3 (8B Magic + 4B KDF Iters + 16B Salt + 12B BaseIV + 4B ChunkSize + 4B ChunkCount + Per Chunk GCM Tags)</p>
+            <div id="lockerDownloadSlot"></div>
+          </div>
+        </div>
+      </div>
+      </div> <!-- End #opsec-panel-scrublock -->
+
+      <!-- Sub-panel 2: Base64 & Hex Encoder / Decoder -->
+      <div id="opsec-panel-b64hex" class="opsec-sub-panel hidden stack-4">
+        <div class="grid-2 gap-4">
+          <!-- Encoder Card -->
+          <div class="px-panel stack-4">
+            <div class="sec-head">
+              <div>
+                <h2 class="title-lg" style="font-size:0.95rem;">File to Text Encoder</h2>
+                <p class="sub-muted">Convert any file up to 25 MB into raw Base64, Data URI, or spaced Hex dump</p>
+              </div>
+              <span id="encodeFilePill" class="badge badge-teal font-mono-tech">Ready</span>
+            </div>
+
+            <div id="encodeDropzone" class="px-dropzone" tabindex="0" role="button">
+              <input id="encodeInput" type="file" class="hidden" />
+              <p style="margin:0; font-weight: 500;">Drop a file to encode into text, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+              <p class="sub-muted font-mono-tech">Safe local text conversion for payload embedding</p>
+            </div>
+
+            <div class="flex-row items-center gap-2">
+              <label for="encodeFormatSelect" class="font-mono-tech sub-muted" style="font-size:0.75rem;">Output Format:</label>
+              <select id="encodeFormatSelect" class="px-select font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">
+                <option value="base64">Raw Base64</option>
+                <option value="datauri">Data URI (data:mime;base64,...)</option>
+                <option value="hex">Hex Dump (Spaced Bytes)</option>
+              </select>
+            </div>
+
+            <textarea id="encodePreviewArea" readonly rows="7" class="px-input font-mono-tech" placeholder="Encoded text representation will appear here..." style="font-size:0.75rem;background:var(--bg-deep);"></textarea>
+
+            <div class="flex-row gap-2">
+              <button id="encodeCopyBtn" type="button" class="px-btn font-mono-tech" disabled>Copy to Clipboard</button>
+              <button id="encodeDownloadBtn" type="button" class="px-btn px-btn-teal font-mono-tech" disabled>Download Text (.txt)</button>
+            </div>
+          </div>
+
+          <!-- Decoder Card -->
+          <div class="px-panel stack-4">
+            <div class="sec-head">
+              <div>
+                <h2 class="title-lg" style="font-size:0.95rem;">Text to File Decoder</h2>
+                <p class="sub-muted">Paste Base64, Data URI, or spaced Hex dump to restore original binary file</p>
+              </div>
+              <span class="badge badge-blue font-mono-tech">Instant Decode</span>
+            </div>
+
+            <div class="stack-2">
+              <label for="decodeFilenameInput" class="font-mono-tech sub-muted" style="font-size:0.75rem;">Output Filename:</label>
+              <input id="decodeFilenameInput" type="text" value="decoded_file.bin" class="px-input font-mono-tech" style="font-size:0.75rem;" />
+            </div>
+
+            <textarea id="decodeTextInput" rows="7" class="px-input font-mono-tech" placeholder="Paste Base64 string, Data URI, or spaced hex bytes here..." style="font-size:0.75rem;background:var(--bg-deep);"></textarea>
+
+            <button id="decodeRunBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="padding:0.5rem 1rem;font-weight:600;">
+              Download Decoded Binary File
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <!-- TAB 5: ARCHIVER (PACK & UNPACK)                                     -->
+        <section id="panel-archiver" class="wb-panel hidden stack-5">
+      <!-- Sub-mode Switcher -->
+      <div class="px-panel stack-3" style="padding:0.75rem 1rem;">
+        <div class="flex-row flex-wrap justify-between items-center gap-2">
+          <div>
+            <h2 class="title-lg" style="font-size:1.05rem;">Archiver &amp; Utilities</h2>
+            <p class="sub-muted">Pack, unpack, split, join, and batch smart renamer running locally</p>
+          </div>
+          <div class="flex-row flex-wrap gap-1-5">
+            <button data-archiver-sub="archive" type="button" class="archiver-sub-btn px-btn px-btn-primary font-mono-tech">Archive (Pack &amp; Unpack)</button>
+            <button data-archiver-sub="split" type="button" class="archiver-sub-btn px-btn font-mono-tech">File Splitter &amp; Joiner</button>
+            <button data-archiver-sub="rename" type="button" class="archiver-sub-btn px-btn font-mono-tech">Batch Smart Renamer</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-panel 1: Existing Pack & Unpack Grid -->
+      <div id="archiver-panel-archive" class="archiver-sub-panel stack-5">
+      <div class="grid-2">
+        <!-- Tool 1: Compress (Pack) -->
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Compress (Pack)</h2>
+              <p class="sub-muted">Bundle files into ZIP, TAR, TAR.GZ, or GZ archives locally</p>
+            </div>
+            <span class="badge badge-blue font-mono-tech">Multi Format</span>
+          </div>
+
+          <div id="zipDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="zipInput" type="file" multiple class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop files here or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p id="zipQueueCount" class="sub-muted font-mono-tech">Any file type accepted · 0 queued</p>
+          </div>
+
+          <div class="grid-sm-2">
+            <div class="px-card-sm stack-2">
+              <label for="zipTargetFormat" class="lbl-micro font-mono-tech">Target Format</label>
+              <select id="zipTargetFormat" class="px-input font-mono-tech" style="font-size:0.8125rem;">
+                <option value="zip" selected>ZIP (Universal Archive)</option>
+                <option value="tar">TAR (POSIX Tape Archive)</option>
+                <option value="tar.gz">TAR.GZ (Compressed Archive)</option>
+                <option value="gz">GZ (Single File Gzip)</option>
+              </select>
+            </div>
+            <div class="px-card-sm stack-2">
+              <label for="zipCompressionLevel" class="lbl-micro font-mono-tech">Compression Level</label>
+              <select id="zipCompressionLevel" class="px-input font-mono-tech" style="font-size:0.8125rem;">
+                <option value="fast">Store or Fast</option>
+                <option value="balanced" selected>Balanced</option>
+                <option value="maximum">Maximum</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="px-card-sm stack-2">
+            <label for="zipArchiveName" class="lbl-micro font-mono-tech">Archive Filename</label>
+            <input id="zipArchiveName" type="text" placeholder="archive" class="px-input font-mono-tech" style="font-size:0.8125rem;" />
+          </div>
+
+          <div id="zipQueueList" class="stack-1" style="max-height:16rem;overflow-y:auto;padding-right:0.25rem;"></div>
+
+          <div class="flex-row flex-wrap gap-2">
+            <button id="zipRunBtn" type="button" class="px-btn px-btn-primary flex-1" disabled>Create Archive</button>
+            <button id="zipClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+
+          <div id="zipProgressBox" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+              <span id="zipStatusLabel">Compressing...</span>
+              <span id="zipPctLabel" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="zipSegTrack" class="seg-track"></div>
+          </div>
+
+          <div id="zipDownloadSlot"></div>
+        </div>
+
+        <!-- Tool 2: Extract (Unpack) -->
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Extract (Unpack)</h2>
+              <p class="sub-muted">Open archives and extract individual files locally</p>
+            </div>
+            <span class="badge badge-teal font-mono-tech">Multi Format</span>
+          </div>
+
+          <div id="unzipDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="unzipInput" type="file" accept=".zip,.tar,.tar.gz,.tgz,.gz,.7z,.rar,application/zip,application/x-zip-compressed,application/x-tar,application/gzip,application/x-7z-compressed,application/vnd.rar,application/x-rar-compressed" class="hidden" />
+            <p style="margin:0; font-weight: 500;">
+              Drop an archive here or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span>
+            </p>
+            <p class="sub-muted font-mono-tech">Supports ZIP, TAR, TAR.GZ, TGZ, GZ, 7Z, RAR</p>
+          </div>
+
+          <div id="unzipFileCard" class="hidden px-card-sm flex-row gap-3">
+            <div class="file-thumb"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="3" y="1" width="10" height="14" fill="#131D33" stroke="#60A5FA" stroke-width="1"/><rect x="5" y="4" width="6" height="1" fill="#3B82F6"/><rect x="5" y="7" width="4" height="1" fill="#2DD4BF"/><rect x="5" y="10" width="6" height="1" fill="#8A9BB8"/></svg></div>
+            <div class="min-w-0 flex-1">
+              <p id="unzipFileName" class="font-mono-tech truncate" style="margin:0;font-size:0.8125rem;"></p>
+              <p id="unzipFileSize" class="sub-muted font-mono-tech"></p>
+            </div>
+          </div>
+
+          <div id="unzipProgressBox" class="hidden stack-2">
+            <div class="flex-row justify-between font-mono-tech" style="font-size:0.75rem;">
+              <span id="unzipStatusLabel">Extracting...</span>
+              <span id="unzipPctLabel" style="color:var(--teal);">0%</span>
+            </div>
+            <div id="unzipSegTrack" class="seg-track"></div>
+          </div>
+
+          <div class="flex-row flex-wrap gap-2">
+            <button id="unzipExtractAllBtn" type="button" class="px-btn px-btn-teal flex-1" disabled>Download All as ZIP</button>
+            <button id="unzipClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+
+          <div id="unzipFileList" class="stack-1" style="max-height:20rem;overflow-y:auto;padding-right:0.25rem;"></div>
+        </div>
+      </div>
+      </div> <!-- End #archiver-panel-archive -->
+
+      <!-- Sub-panel 2: File Splitter & Joiner -->
+      <div id="archiver-panel-split" class="archiver-sub-panel hidden stack-4">
+        <div class="grid-2 gap-4">
+          <!-- Splitter Card -->
+          <div class="px-panel stack-4">
+            <div class="sec-head">
+              <div>
+                <h2 class="title-lg" style="font-size:0.95rem;">File Splitter</h2>
+                <p class="sub-muted">Chop any file into exact chunk sizes using zero copy slice</p>
+              </div>
+              <span id="splitFilePill" class="badge badge-teal font-mono-tech">No file loaded</span>
+            </div>
+
+            <div id="splitDropzone" class="px-dropzone" tabindex="0" role="button">
+              <input id="splitInput" type="file" class="hidden" />
+              <p style="margin:0; font-weight: 500;">Drop a file to split into chunks, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+              <p class="sub-muted font-mono-tech">Zero copy memory slices for email, Discord, or FAT32 limits</p>
+            </div>
+
+            <div class="flex-row flex-wrap items-center gap-2">
+              <label for="splitSizeSelect" class="font-mono-tech sub-muted" style="font-size:0.75rem;">Chunk Size:</label>
+              <select id="splitSizeSelect" class="px-select font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">
+                <option value="10">10 MB (Web / Forums)</option>
+                <option value="25" selected>25 MB (Discord / Email)</option>
+                <option value="100">100 MB (Standard Storage)</option>
+                <option value="custom">Custom MB</option>
+              </select>
+              <div id="splitCustomWrap" class="hidden flex-row items-center gap-1 font-mono-tech sub-muted" style="font-size:0.75rem;">
+                <input id="splitCustomMbInput" type="number" min="1" max="1000" value="50" class="px-input font-mono-tech" style="width:4.5rem;padding:0.2rem 0.4rem;font-size:0.75rem;" />
+                <span>MB</span>
+              </div>
+            </div>
+
+            <span id="splitEstimatePill" class="sub-muted font-mono-tech" style="font-size:0.75rem;">Awaiting file to estimate part count</span>
+
+            <div id="splitProgressWrap" class="hidden stack-2">
+              <div class="flex-row justify-between font-mono-tech" style="font-size:0.6875rem;">
+                <span class="sub-muted">Splitting chunks...</span>
+                <span id="splitPct" style="color:var(--teal);">0%</span>
+              </div>
+              <div id="splitSegTrack" class="seg-track"></div>
+            </div>
+
+            <button id="splitRunBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="padding:0.5rem 1rem;font-weight:600;" disabled>
+              Split and Download
+            </button>
+          </div>
+
+          <!-- Joiner Card -->
+          <div class="px-panel stack-4">
+            <div class="sec-head">
+              <div>
+                <h2 class="title-lg" style="font-size:0.95rem;">File Joiner</h2>
+                <p class="sub-muted">Concatenate .part001, .part002 chunks back into original binary file</p>
+              </div>
+              <span id="joinSummaryPill" class="badge badge-blue font-mono-tech">0 parts</span>
+            </div>
+
+            <div id="joinDropzone" class="px-dropzone" tabindex="0" role="button">
+              <input id="joinInput" type="file" multiple class="hidden" />
+              <p style="margin:0; font-weight: 500;">Drop all .part files to restore, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+              <p class="sub-muted font-mono-tech">Auto sorted naturally by part number sequence</p>
+            </div>
+
+            <div id="joinPartsList" class="stack-1" style="max-height:11rem;overflow-y:auto;border:1px solid var(--border-px);border-radius:2px;background:var(--bg-deep);">
+              <div style="padding:1.25rem;text-align:center;color:var(--text-muted);font-size:0.75rem;">No .part files queued yet.</div>
+            </div>
+
+            <div class="flex-row gap-2">
+              <button id="joinRunBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="padding:0.5rem 1rem;font-weight:600;" disabled>
+                Concatenate and Restore File
+              </button>
+              <button id="joinClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-panel 3: Batch Smart Renamer -->
+      <div id="archiver-panel-rename" class="archiver-sub-panel hidden stack-4">
+        <div class="px-panel stack-4">
+          <div class="sec-head">
+            <div>
+              <h2 class="title-lg" style="font-size:0.95rem;">Batch Smart Renamer</h2>
+              <p class="sub-muted">Drop multiple files, configure renaming rules with live preview, and download as ZIP</p>
+            </div>
+            <span id="renameCountPill" class="badge badge-teal font-mono-tech">0 files queued</span>
+          </div>
+
+          <div id="renameDropzone" class="px-dropzone" tabindex="0" role="button">
+            <input id="renameInput" type="file" multiple class="hidden" />
+            <p style="margin:0; font-weight: 500;">Drop multiple files to rename, or <span style="color:var(--accent-hi);text-decoration:underline;">browse</span></p>
+            <p class="sub-muted font-mono-tech">Prefix, suffix, find &amp; replace, case formatting, and numbering</p>
+          </div>
+
+          <!-- Rules Configuration -->
+          <div class="px-card stack-3">
+            <div class="grid-2 gap-3" style="font-size:0.75rem;">
+              <div>
+                <label for="renamePrefix" class="font-mono-tech sub-muted" style="display:block;margin-bottom:0.25rem;">Prefix:</label>
+                <input id="renamePrefix" type="text" placeholder="e.g. img_" class="px-input font-mono-tech" />
+              </div>
+              <div>
+                <label for="renameSuffix" class="font-mono-tech sub-muted" style="display:block;margin-bottom:0.25rem;">Suffix:</label>
+                <input id="renameSuffix" type="text" placeholder="e.g. _final" class="px-input font-mono-tech" />
+              </div>
+              <div>
+                <label for="renameFind" class="font-mono-tech sub-muted" style="display:block;margin-bottom:0.25rem;">Find String:</label>
+                <input id="renameFind" type="text" placeholder="Text to replace..." class="px-input font-mono-tech" />
+              </div>
+              <div>
+                <label for="renameReplace" class="font-mono-tech sub-muted" style="display:block;margin-bottom:0.25rem;">Replace With:</label>
+                <input id="renameReplace" type="text" placeholder="Replacement..." class="px-input font-mono-tech" />
+              </div>
+            </div>
+
+            <div class="flex-row flex-wrap items-center justify-between gap-3" style="border-top:1px solid var(--border-px);padding-top:0.5rem;font-size:0.75rem;">
+              <div class="flex-row items-center gap-2">
+                <label for="renameCase" class="font-mono-tech sub-muted">Case Format:</label>
+                <select id="renameCase" class="px-select font-mono-tech" style="font-size:0.75rem;padding:0.25rem 0.5rem;">
+                  <option value="keep">Keep Original Case</option>
+                  <option value="lower">lowercase</option>
+                  <option value="upper">UPPERCASE</option>
+                  <option value="title">Title Case</option>
+                  <option value="clean">Clean Words (Underscores)</option>
+                </select>
+              </div>
+
+              <div class="flex-row items-center gap-3 font-mono-tech">
+                <label class="flex-row items-center gap-1-5" style="cursor:pointer;">
+                  <input id="renameNumbering" type="checkbox" style="accent-color:var(--teal);" />
+                  <span style="color:var(--text-main);">Add Numbering (001, 002...)</span>
+                </label>
+                <label class="flex-row items-center gap-1 sub-muted">
+                  <span>Start:</span>
+                  <input id="renameStartNum" type="number" min="1" value="1" class="px-input font-mono-tech" style="width:3.5rem;padding:0.2rem 0.4rem;font-size:0.75rem;" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Table -->
+          <div class="table-wrap">
+            <table class="wb-table">
+              <thead>
+                <tr class="font-mono-tech">
+                  <th>Original Filename</th>
+                  <th>New Filename (Live Preview)</th>
+                  <th style="text-align:right;">Remove</th>
+                </tr>
+              </thead>
+              <tbody id="renameTableBody">
+                <tr><td colspan="3" style="text-align:center;padding:1.25rem;color:var(--text-muted);">No files queued for batch rename yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex-row gap-2">
+            <button id="renameRunBtn" type="button" class="px-btn px-btn-teal font-mono-tech" style="padding:0.5rem 1rem;font-weight:600;" disabled>
+              Download Renamed Files (ZIP)
+            </button>
+            <button id="renameClearBtn" type="button" class="px-btn font-mono-tech">Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collapsible Telemetry & FFmpeg Console -->
+    <section id="consoleSection" class="hidden px-panel stack-2-5">
+      <div class="flex-row justify-between">
+        <span class="font-mono-tech" style="font-size:0.75rem;text-transform:uppercase;color:var(--teal);">&gt;_ Nerd Console (FFmpeg &amp; System Diagnostics)</span>
+        <div class="flex-row gap-3 font-mono-tech" style="font-size:0.75rem;">
+          <button id="consoleCopyBtn" type="button" style="background:none;border:none;color:var(--accent-hi);cursor:pointer;">Copy</button>
+          <button id="consoleClearBtn" type="button" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">Clear</button>
+        </div>
+      </div>
+      <pre id="consoleOutput" class="px-card-sm font-mono-tech" style="margin:0;height:12rem;overflow-y:auto;font-size:0.6875rem;color:var(--text-muted);white-space:pre-wrap;"></pre>
+    </section>
+  </main>
+
+  <!-- Legal Footer -->
+  <footer class="wb-footer" role="contentinfo" aria-label="Site Footer">
+    <div class="container-wb flex-row flex-wrap justify-between gap-3">
+      <span class="font-mono-tech">swissfile.dev | Local Browser Processing · Zero User File Uploads · <a href="mailto:contact@swissfile.dev" style="color:var(--text-muted);text-decoration:none;">contact@swissfile.dev</a></span>
+      <div class="flex-row gap-4 font-mono-tech">
+        <button type="button" id="bugReportBtn" style="background:none;border:none;color:var(--accent-soft);text-decoration:underline;cursor:pointer;">Report a Bug</button>
+        <button type="button" data-legal="privacy" style="background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;">Privacy Policy</button>
+        <button type="button" data-legal="terms" style="background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;">Terms of Use</button>
+        <button type="button" data-legal="licenses" style="background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;">Open Source Licenses</button>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Legal Info Modal -->
+  <div id="legalModal" class="hidden modal-backdrop">
+    <div class="px-panel modal-box">
+      <div class="flex-row justify-between" style="padding:0.875rem 1.25rem;border-bottom:1px solid var(--border-px);">
+        <h3 id="legalModalTitle" class="font-mono-tech" style="margin:0;font-size:0.95rem;font-weight:600;">Notice</h3>
+        <button id="legalCloseBtn" type="button" class="px-btn font-mono-tech" style="padding:0.25rem 0.6rem;">Close</button>
+      </div>
+      <div id="legalModalBody" style="padding:1.25rem;overflow-y:auto;font-size:0.8125rem;color:var(--text-muted);" class="stack-3"></div>
+    </div>
+  </div>
+
+  <!-- Report a Bug Modal -->
+  <div id="bugModal" class="hidden modal-backdrop">
+    <div class="px-panel modal-box" style="max-width:540px;width:90%;">
+      <div class="flex-row justify-between" style="padding:0.875rem 1.25rem;border-bottom:1px solid var(--border-px);">
+        <h3 class="font-mono-tech" style="margin:0;font-size:0.95rem;font-weight:600;color:var(--text-main);">Report a Bug</h3>
+        <button id="bugModalCloseBtn" type="button" class="px-btn font-mono-tech" style="padding:0.25rem 0.6rem;">Close</button>
+      </div>
+      <form id="bugReportForm" style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem;">
+        <!-- Honeypot field for bot protection -->
+        <input type="text" name="_honey" id="bugHoney" style="display:none !important;" tabindex="-1" autocomplete="off" />
+
+        <div>
+          <label for="bugEmail" class="font-mono-tech" style="display:block;margin-bottom:0.35rem;font-size:0.75rem;color:var(--text-muted);">Your Email (Required)</label>
+          <input type="email" id="bugEmail" name="email" required placeholder="you@example.com" class="px-input" style="width:100%;box-sizing:border-box;" />
+        </div>
+
+        <div>
+          <label for="bugTitle" class="font-mono-tech" style="display:block;margin-bottom:0.35rem;font-size:0.75rem;color:var(--text-muted);">Title / Subject (Required)</label>
+          <input type="text" id="bugTitle" name="title" required placeholder="e.g., Archiver unzip error on large RAR" class="px-input" style="width:100%;box-sizing:border-box;" />
+        </div>
+
+        <div>
+          <label for="bugDesc" class="font-mono-tech" style="display:block;margin-bottom:0.35rem;font-size:0.75rem;color:var(--text-muted);">Description (Required)</label>
+          <textarea id="bugDesc" name="description" required rows="4" placeholder="Steps to reproduce, file format, and browser used..." class="px-input" style="width:100%;box-sizing:border-box;resize:vertical;"></textarea>
+        </div>
+
+        <div style="font-size:0.6875rem;color:var(--text-muted);" class="font-mono-tech">
+          Direct email: <a href="mailto:contact@swissfile.dev" style="color:var(--accent-soft);text-decoration:none;">contact@swissfile.dev</a>
+        </div>
+
+        <div class="flex-row justify-between gap-3" style="margin-top:0.5rem;">
+          <button id="bugCancelBtn" type="button" class="px-btn font-mono-tech" style="flex:1;">Cancel</button>
+          <button id="bugSubmitBtn" type="submit" class="px-btn px-btn-primary font-mono-tech" style="flex:1;">Send Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js?v=1.7.6"></script>
+</body>
+</html>
